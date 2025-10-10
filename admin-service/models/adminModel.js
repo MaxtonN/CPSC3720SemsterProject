@@ -12,9 +12,23 @@ return events;
 };
 
 // adds an event to the list
+// event must exist,
+// returns the status of the operation
 const postEvent = (event) => {
-    events.push({id: event.id, name: event.name, date: event.date});
-    console.log(`Event added: ${event.name} on ${event.date}`);
+    if(!event.id || !event.name || !event.date) {
+        return 400; // bad request
+    }
+
+    // do not allow duplicate ids, maybe change to a different status code later
+    if(events.find(e => e.id === event.id)) {
+        return 400; // bad request, event with same id exists
+    }
+
+    if(!events.push(event)) {
+        return 501; // server error, failed to add event
+    }
+
+    return 200; // success
 };
 
 module.exports = { getEvents, postEvent };
