@@ -12,34 +12,35 @@ const { getEvents, postEvent } = require('../models/adminModel');
 const addEvent = async (req, res) => {
     // req validation
     if(!req || !req.body) {
-        res.status(400).send('Bad Request: No data provided');
+        await res.status(400).send('Bad Request: No data provided');
         return;
     }
 
     // field validation, existence
     const event = req.body;
     if(!event.name){
-        res.status(400).send('Bad Request: Missing name');
+        await res.status(400).send('Bad Request: Missing name');
         return;
     }
     else if(!event.date){
-        res.status(400).send('Bad Request: Missing date');
+        await res.status(400).send('Bad Request: Missing date');
         return;
     }
     else if(!event.available_tickets){
-        res.status(400).send('Bad Request: Missing available_tickets');
+        await res.status(400).send('Bad Request: Missing available_tickets');
         return;
     }
 
     // date validation, proper formate
     if(!Date.parse(event.date)){
-        res.status(400).send('Bad Request: Date has bad formatting');
+        await res.status(400).send('Bad Request: Date has bad formatting');
         return;
     }
 
     // date validation, must be in the future
     if(Date.parse(event.date) < Date.now()){
-        res.status(400).send('Bad Request: Date is before the current day');
+        await res.status(400).send('Bad Request: Date is before the current day');
+        return;
     }
     
 
@@ -47,16 +48,16 @@ const addEvent = async (req, res) => {
     // execute posting
     try{
         if(!await postEvent(event)){
-            res.status(500).send("Internal Server Error: SQL script failure");
+            await res.status(500).send("Internal Server Error: SQL script failure");
             return;
         }
     }
     catch{
-        res.status(500).send("Internal Server Error: Unknown Exception");
+        await res.status(500).send("Internal Server Error: Unknown Exception");
         return;
     }
 
-    res.status(200).send("Success")
+    await res.status(200).send("Success")
 };
 
 module.exports = { addEvent };
