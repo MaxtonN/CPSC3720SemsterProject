@@ -15,7 +15,8 @@ const postEvent = async (event) => {
     const db = new Database(dbFilePath);
     const info = db.exec(`
         BEGIN EXCLUSIVE;
-        INSERT INTO events (name, date, available_tickets) VALUES (?, ?, ?);
+        INSERT INTO events (name, date, available_tickets) 
+        VALUES (${event.name}, ${event.date}, ${event.available_tickets});
         COMMIT;`
     );
     db.close();
@@ -23,4 +24,4 @@ const postEvent = async (event) => {
     return info;
 };
 
-module.exports = { getEvents, postEvent };
+module.exports = { postEvent };
