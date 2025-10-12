@@ -1,26 +1,62 @@
 const { getEvents, postEvent } = require('../models/adminModel');
 
-// function to list events
-const listEvents = (req, res) => {
-    const events = getEvents();
-    res.json(events);
-};
 
-// function to add an event, all error handling done here (no contract)
-const addEvent = (req, res) => {
+
+/*
+ * addEvent takes in an api POST request and creates a new entry in the
+ * shared SQLite database based on given data, wrapper for postEvent
+ * 
+ * req -> json object, json object representation of api request
+ * res -> json object, json object representation of api response
+ */
+const addEvent = async (req, res) => {
+    // req validation
     if(!req || !req.body) {
         res.status(400).send('Bad Request: No data provided');
+        return;
     }
-    const status = postEvent(req.body); // add event to the model
+
+    // field validation, existence
+    const event = req.body;
+    if(!event.name){
+        res.status(400).send('Bad Request: Missing name');
+        return;
+    }
+    else if(!event.date){
+        res.status(400).send('Bad Request: Missing date');
+        return;
+    }
+    else if(!event.available_tickets){
+        res.status(400).send('Bad Request: Missing available_tickets');
+        return;
+    }
+
+    // date validation, proper formate
+    if(!Date.parse(event.date)){
+        res.status(400).send('Bad Request: Date has bad formatting');
+        return;
+    }
+
+    // date validation, must be in the future
+    if(Date.parse(event.date) < Date.now()){
+        res.status(400).send('Bad Request: Date is before the current day');
+    }
     
-    switch(status) {
-        case 200:
-            res.status(200).send('Event added successfully');
-            break;
-        case 400:
-            res.status(400).send('Bad Request: Invalid event data');
-            break;
+
+
+    // execute posting
+    try{
+        if(!await postEvent(event)){
+            res.status(500).send("Internal Server Error: SQL script failure");
+            return;
+        }
     }
+    catch{
+        res.status(500).send("Internal Server Error: Unknown Exception");
+        return;
+    }
+
+    res.status(200).send("Success")
 };
 
-module.exports = { listEvents, addEvent };
+module.exports = { addEvent };
