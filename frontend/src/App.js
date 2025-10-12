@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+
 function App() {
 const [events, setEvents] = useState([]);
 useEffect(() => {
@@ -38,13 +39,27 @@ const buyTicket = async (id) => {
 
 return (
 <div className="App">
+  <img 
+  src = "/tigerpaw.png" 
+  alt = "Clemson Tiger Paw" 
+  className = "ClemsonLogo" 
+  />
 <h1>Clemson Campus Events</h1>
 <ul>
 {events.map((event) => (
 <li key={event.id}>
-{event.name} - {event.date}{' '}
-<button onClick={() => buyTicket(event.name)}>Buy
-Ticket</button>
+  <strong>{event.name}</strong> – {new Date(event.date).toLocaleString()}
+  <br />
+  <em>Tickets Available:</em> {event.available_tickets}
+  <br />
+  <button
+    onClick={() => buyTicket(event.id)}
+    disabled={event.available_tickets <= 0}
+    aria-label={`Buy ticket for ${event.name}`}
+  >
+    {event.available_tickets > 0 ? "Buy Ticket" : "Sold Out"}
+  </button>
+  <hr />
 </li>
 ))}
 </ul>
