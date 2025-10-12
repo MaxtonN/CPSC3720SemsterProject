@@ -1,9 +1,23 @@
-// Mock data for Clemson events
+const Database = require("better-sqlite3");
+const dbFilePath = "../backend/shared-db/database.sqlite";
+
+// get data from shared-db
 const getEvents = () => {
-return [
-{ id: 1, name: 'Clemson Football Game', date: '2025-09-01' },
-{ id: 2, name: 'Campus Concert', date: '2025-09-10' },
-{ id: 3, name: 'Career Fair', date: '2025-09-15' }
-];
+    const db = new Database(dbFilePath);
+    const stmt = db.prepare("SELECT id, name, date, available_tickets FROM events");
+    const rows = stmt.all();
+    db.close();
+
+    return rows;
 };
-module.exports = { getEvents };
+
+// decrement event ticket count, count should always be one
+const decrementTickets = (eventId) => {
+    const db = new Database(dbFilePath);
+    const stmt = db.prepare("UPDATE events SET available_tickets = available_tickets - 1 WHERE id = ? AND available_tickets >= 1");
+    const info = stmt.run(eventId);
+    db.close();
+    return info;
+};
+
+module.exports = { getEvents, decrementTickets };

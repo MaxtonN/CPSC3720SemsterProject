@@ -4,11 +4,6 @@ const Database = require("better-sqlite3");
 
 const dbFilePath = "../backend/shared-db/database.sqlite";
 
-/*let events = [
-    { id: 1, name: 'Clemson Football Game', date: '2025-09-01' },
-    { id: 2, name: 'Campus Concert', date: '2025-09-10' },
-    { id: 3, name: 'Career Fair', date: '2025-09-15' }
-];*/
 
 // Fetch all events from database, format
 function fetchEvents(){
