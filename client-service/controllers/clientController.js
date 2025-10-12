@@ -5,16 +5,16 @@ const listEvents = (req, res) => {
 };
 
 const purchaseTicket = (req, res) => {
-    console.log(req.params.id);
+
+    // validate input
     if(!req || !req.params || !req.params.id) {
         res.status(400).send('Bad Request: No event ID provided');
         return;
     }
-    const eventId = req.params.id;
-    decrementTickets(eventId); // always decrement by 1 for now
 
- 
-    res.status(200).send('Ticket purchased successfully');
+    const [statusNumber, message] = decrementTickets(req.params.id);
+
+    res.status(statusNumber).send(message);
 };
 
 module.exports = { listEvents, purchaseTicket };
