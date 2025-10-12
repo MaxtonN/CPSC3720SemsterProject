@@ -8,6 +8,6 @@ app.use(express.urlencoded({ extended: true })); // parse application/x-www-form
 
 app.use(cors());
 app.use('/api', routes);
+
 const PORT = 6001;
-app.listen(PORT, () => console.log(`Server running at
-http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

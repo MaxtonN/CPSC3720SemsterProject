@@ -5,11 +5,12 @@ const listEvents = (req, res) => {
 };
 
 const purchaseTicket = (req, res) => {
-    if(!req || !req.body || !req.body.eventId) {
+    console.log(req.params.id);
+    if(!req || !req.params || !req.params.id) {
         res.status(400).send('Bad Request: No event ID provided');
         return;
     }
-    const eventId = req.body.eventId;
+    const eventId = req.params.id;
     decrementTickets(eventId); // always decrement by 1 for now
 
  
