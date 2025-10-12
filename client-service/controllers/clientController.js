@@ -13,7 +13,6 @@ const purchaseTicket = (req, res) => {
     }
 
     const [statusNumber, message] = decrementTickets(req.params.id);
-
     res.status(statusNumber).send(message);
 };
 
