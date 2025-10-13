@@ -33,7 +33,7 @@ const purchaseTicket = async (req, res) => {
     // validate event existence
     const row = await getEvent(req.params.id);
     if(!row){
-        await res.status(400).send(`Bad Request: Event with id: ${eventId} could not be found`);
+        await res.status(400).send(`Bad Request: Event with id: ${req.params.id} could not be found`);
         return;
     }
 
