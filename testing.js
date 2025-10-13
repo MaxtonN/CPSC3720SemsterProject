@@ -9,8 +9,9 @@ async function simulateRequests(url){
     const responses = await Promise.allSettled(requests);
 }
 
-clientServiceURL = "http://localhost:6001/api/events/5/purchase";
-adminServiceURL = "http://localhost:5001/api/admin/events";
+
+
+clientServiceURL = "http://localhost:6001/api/events/1/purchase";
 
 
 simulateRequests(clientServiceURL);
