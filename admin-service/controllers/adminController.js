@@ -31,6 +31,12 @@ const addEvent = async (req, res) => {
         return;
     }
 
+    // available_tickets validation, is a number
+    if(!Number.isInteger(event.available_tickets)){
+        await res.status(400).send('Bad Request: available_tickets is not an Integer');
+        return;
+    }
+
     // date validation, proper formate
     if(!Date.parse(event.date)){
         await res.status(400).send('Bad Request: Date has bad formatting');
@@ -42,17 +48,13 @@ const addEvent = async (req, res) => {
         await res.status(400).send('Bad Request: Date is before the current day');
         return;
     }
-    
-
 
     // execute posting
     try{
-        if(!await postEvent(event)){
-            await res.status(500).send("Internal Server Error: SQL script failure");
-            return;
-        }
+        await postEvent(event);
     }
-    catch{
+    catch(error){
+        console.log(error);
         await res.status(500).send("Internal Server Error: Unknown Exception");
         return;
     }

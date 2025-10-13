@@ -12,16 +12,13 @@ const dbFilePath = "../backend/shared-db/database.sqlite";
  */
 const postEvent = async (event) => {
     // lock down the datbase while making changes to prevent race conditions and corruption
-    const db = new Database(dbFilePath);
-    const info = db.exec(`
-        BEGIN EXCLUSIVE;
-        INSERT INTO events (name, date, available_tickets) 
-        VALUES (${event.name}, ${event.date}, ${event.available_tickets});
-        COMMIT;`
-    );
-    db.close();
-    
-    return info;
+    const database = new Database(dbFilePath);
+    const purchase = database.transaction((event) => {
+        const statement = database.prepare("INSERT INTO events (name, date, available_tickets) VALUES (?, ?, ?)");
+        statement.run(event.name, event.date, event.available_tickets);
+    })
+    purchase(event);
+    database.close();
 };
 
 module.exports = { postEvent };

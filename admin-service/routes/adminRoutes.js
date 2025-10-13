@@ -3,6 +3,6 @@ const router = express.Router();
 const { addEvent } = require('../controllers/adminController');
 
 // endpoints 
-router.post('/events', addEvent); 
+router.post('/admin/events', addEvent); 
 
 module.exports = router; 
