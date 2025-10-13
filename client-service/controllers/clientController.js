@@ -30,24 +30,21 @@ const purchaseTicket = async (req, res) => {
         return;
     }
 
+    // validate event existence
     const row = await getEvent(req.params.id);
     if(!row){
         await res.status(400).send(`Bad Request: Event with id: ${eventId} could not be found`);
         return;
     }
 
-    
-
     // need to lock the following critical section, otherwise available_tickets could become 0 between checking and calling decrementTickets()
+    // event must have available tickets
     const mutex = new Mutex();
     const release = await mutex.acquire();
-
-    // validating purchase, there must be tickets remaining
     if(row.available_tickets == 0){
         await res.status(400).send(`Bad Request: Cannot purchase ticket for sold out event`);
         return;
     }
-
     try{
         let info = await decrementTickets(req.params.id);
         if(!info){
