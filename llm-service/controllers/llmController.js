@@ -59,7 +59,7 @@ const keywordParse = (message) => {
     response.event_name = eventName;
 
     return response;
-}
+};
 
 /* 
  * controller for Parse; validates message and then sends to llm to get parsed. Processes and verifies the llm response
@@ -80,8 +80,8 @@ const parseText = async (req, res) => {
         let parsedInformation = JSON.parse('{"intent":null, "ticket_amount":null, "event_name":null}');
         let counter = 3;
         while((!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name) && counter > 0){
-            //const response = await Parse(req.body.message);
-            //parsedInformation = JSON.parse(response);
+            const response = await Parse(req.body.message);
+            parsedInformation = JSON.parse(response);
             counter = counter - 1;
         }
 
