@@ -19,7 +19,7 @@ const Parse = async (message) => {
 
     // llm will respond according to this prompt
     const prompt = `You analyze messages and extract the intention of the user, the event the user is asking about, and the amount of tickets they want to book.
-    Respond to every prompt in json with the keys 'intent', 'ticketAmount', and 'event'`;
+    Respond to every prompt in json with the keys 'intent', 'ticket_amount', and 'event_name'`;
 
     const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
