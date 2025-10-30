@@ -3,18 +3,24 @@ const { Parse } = require('../models/llmModel');
 
 
 const parseText = async (req, res) => {
-    const response = await Parse(req.body.text);
-    console.log(response);
-    // check response for event name, number of tickets, intent (buy, view, etc.)
-
-    // format event name, number of tickets, intent, etc. in json object, return with res
-    const parsedInformation = JSON({"example":"example"});
-
-    if(response){
-        res.status(200).json(parsedInformation);
+    if(!req.body || !req.body.message){
+        res.status(400).send("Bad Request: No Message/Body");
+        return;
     }
-    else{
-        res.status(500).send("Server Error: Unknown Issue Occured");
+
+    try{
+        // if the parsing fails I could try and repeat the Parse() to hope that the llm gets it right the next time
+        const response = await Parse(req.body.message);
+        const parsedInformation = JSON.parse(response);
+        if(!parsedInformation.intent || !parsedInformation.ticketAmount || !parsedInformation.event){
+            res.status(500).send("Internal Server Error: LLM response failure");
+        }
+        else{
+            res.status(200).json(parsedInformation);
+        }
+    }
+    catch(error){
+        res.status(500).send("Internal Server Error: Unknown");
     }
 }
 

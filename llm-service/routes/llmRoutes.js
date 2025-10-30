@@ -3,5 +3,6 @@ const router = express.Router();
 const { parseText } = require('../controllers/llmController');
 
 // endpoints 
-router.post('/api/llm/parse'); 
- module.exports = router;
+router.post('/llm/parse', parseText);
+
+module.exports = router;
