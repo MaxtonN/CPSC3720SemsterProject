@@ -36,7 +36,7 @@ const Parse = async (message) => {
  * Adds a booking to the shared-database in the bookings table
  *
  * booking -> json object, should have a field for:
- *      event -> (REQUIRED) string, name of the event
+ *      event_name -> (REQUIRED) string, name of the event
  *      ticket_count -> (REQUIRED) integer, number of booked tickets
  *      user -> (OPTIONAL, defauls to 'guest') string, name of the user who is booking the ticketss
  * 
@@ -60,7 +60,7 @@ const Booking = async (booking) => {
     else{
         // lock down database while making changes to prevent race conditions
         const purchase = database.transaction((booking) => {
-            const statement = database.prepare("INSERT INTO bookings (event_name ticket_count) VALUES (?, ?)");
+            const statement = database.prepare("INSERT INTO bookings (event_name, ticket_count) VALUES (?, ?)");
             return statement.run(booking.event_name, booking.ticket_count);
         });
         const response = purchase(booking);

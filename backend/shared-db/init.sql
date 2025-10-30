@@ -16,7 +16,7 @@ CREATE TABLE bookings(
     event_name TEXT NOT NULL,
     user TEXT DEFAULT "Guest",
     ticket_count INTEGER NOT NULL,
-    timestamp DATETIME
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- seed events

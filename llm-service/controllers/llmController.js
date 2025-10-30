@@ -27,6 +27,7 @@ const parseText = async (req, res) => {
         }
     }
     catch(error){
+        console.log(error);
         res.status(500).send("Internal Server Error: Unknown");
     }
 };
@@ -41,7 +42,24 @@ const parseText = async (req, res) => {
  * returns: json object, status of the SQL operation
  */
 const addBooking = async (req, res) => {
+    if(!req.body.event_name || !req.body.ticket_count){
+        res.status(400).send("Bad Request: Missing body information");
+        return;
+    }
 
+    try{
+        const response = await Booking(req.body);
+        if(response){
+            res.status(200).json(response);
+        }
+        else{
+            res.status(500).send("Internal Server Error: Unknown");
+        }
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).send("Internal Server Error: Unknown");
+    }
 };
 
 /*
@@ -51,6 +69,16 @@ const addBooking = async (req, res) => {
  */
 const getBookings = async (req, res) => {
 
+    try{
+        const response = await BookingList();
+        if(response){
+            res.status(200).json(response);
+        }
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json("Internal Server Error: Unknown");
+    }
 }
 
-module.exports = { parseText };
+module.exports = { parseText, addBooking, getBookings };
