@@ -10,8 +10,7 @@ import "./App.css";
 function BookingAssistantButton(props){
 
   return (
-    <div id="BookingAssistantButton">
-      <button onClick={() => props.setShowAssistant(true)}>Button</button>
+    <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
     </div>
   );
 }
@@ -19,7 +18,11 @@ function BookingAssistantButton(props){
 function BookingAssistantChat(props){
   return (
     <div id="BookingAssistantChat">
-      chatbot
+      <div id="BookingAssistantChatHeader">
+        <div id="BookingAssistantChatHeaderTitle">Booking Assistant</div>
+        <div id="BookingAssistantChatHeaderExit" onClick={()=> props.setShowAssistant(false)}>X</div>
+      </div>
+      <div id="BookingAssistantChatPanel">Greetings Guest User</div>
     </div>
   )
 }
@@ -148,7 +151,7 @@ function App() {
         </ul>
       </section>
 
-      {showAssistant && (<BookingAssistantChat/>)}
+      {showAssistant && (<BookingAssistantChat setShowAssistant={setShowAssistant}/>)}
       {!showAssistant && (<BookingAssistantButton setShowAssistant={setShowAssistant}/>)}
 
     </main>
