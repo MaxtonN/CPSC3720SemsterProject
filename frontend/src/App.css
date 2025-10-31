@@ -119,5 +119,92 @@
 }
 
 #BookingAssistantChatPanel{
-  background-color: aliceblue;
+  display:grid;
+  grid-template-rows: 17fr 3fr;
+}
+
+#MessageList{
+  background-color: white;
+}
+
+.Message{
+  width:fit-content;
+  min-width: 60px;
+  max-width: 250px;
+  height: fit-content;
+
+  background-color: black;
+  color: white;
+}
+
+#ChatBotTextArea{
+  background-color: grey;
+  width: 100%;
+
+  display:grid;
+  grid-template-columns: 8fr 2fr;
+}
+
+#ChatBotTextArea-textarea{
+  border: none;
+  background-color: black;
+  color: white;
+
+  width: 95%;
+  height: 80%;
+  margin-left:5%;
+
+  border-color: white;
+  border-style: solid;
+  border-width: 1px;
+
+  align-self: center;
+
+  resize:none;
+  outline: none;
+}
+
+#ChatBotTextAreaButtons{
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+
+  justify-items: center;
+}
+
+#ChatBotTextAreaVoiceButton{
+  border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 25px;
+
+  width: 50px;
+  height: 50px;
+
+  align-self: center;
+
+  background-color: black;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#ChatBotTextAreaSendButton{
+  border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 25px;
+
+  width: 50px;
+  height: 50px;
+
+  align-self: center;
+
+  background-color: black;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

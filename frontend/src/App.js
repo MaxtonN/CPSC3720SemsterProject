@@ -38,7 +38,11 @@ function MessageList(props){
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
-      <textarea placeholder="Enter message here..."></textarea>
+      <textarea id="ChatBotTextArea-textarea" placeholder="Enter message here..."></textarea>
+      <div id="ChatBotTextAreaButtons">
+        <div id = "ChatBotTextAreaVoiceButton">Voice</div>
+        <div id = "ChatBotTextAreaSendButton">Send</div>
+      </div>
     </div>
   )
 }
