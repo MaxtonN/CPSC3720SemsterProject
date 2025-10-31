@@ -47,6 +47,7 @@ function MessageList({messages}){
   )
 }
 
+
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
@@ -67,7 +68,7 @@ function ChatBotTextArea(props){
             props.setMessages(newMessages);
             event.target.value = "";
           }
-          else if(event.key === "Enter" && event.shiftKey != true){
+          else if(event.key === "Enter" && event.shiftKey !== true){
             event.preventDefault();
           }
         }
@@ -111,6 +112,34 @@ function BookingAssistantChat(props){
       ]
     }
   );
+
+  // message should just be text
+  useEffect(()=>{
+    const sendMessage = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/llm/parse", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": true
+          },
+          body: JSON.stringify({message: messages.items[messages.items.length-1].message})
+        });
+
+        const data = await response.json();
+        console.log(data);
+      }
+      catch(error){
+        console.error("Error sending message: ", error);
+      }
+    };
+
+    // if the most recent message is by the user then send to the llm
+    if (messages.items.length > 0 && messages.items[messages.items.length-1].role === "user"){
+      sendMessage();
+    }
+
+  }, [messages])
 
   return (
     <div id="BookingAssistantChat">

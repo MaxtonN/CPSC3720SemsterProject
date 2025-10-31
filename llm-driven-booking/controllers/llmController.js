@@ -80,8 +80,8 @@ const parseText = async (req, res) => {
         let parsedInformation = JSON.parse('{"intent":null, "ticket_amount":null, "event_name":null}');
         let counter = 3;
         while((!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name) && counter > 0){
-            const response = await Parse(req.body.message);
-            parsedInformation = JSON.parse(response);
+            //const response = await Parse(req.body.message);
+            //parsedInformation = JSON.parse(response);
             counter = counter - 1;
         }
 
@@ -96,7 +96,7 @@ const parseText = async (req, res) => {
         // llm failed; try keyword-based parser
         parsedInformation = keywordParse(req.body.message);
         if(!parsedInformation){
-            res.status(400).send("Bad Request: Message could not be parsed");
+            res.status(400).json({error: "Bad Request: Message could not be parsed"});
         }
         else{
             res.status(200).json(parsedInformation);
@@ -105,7 +105,7 @@ const parseText = async (req, res) => {
     }
     catch(error){
         console.log(error);
-        res.status(500).send("Internal Server Error: Unknown");
+        res.status(500).send({error: "Internal Server Error: Unknown"});
     }
 };
 

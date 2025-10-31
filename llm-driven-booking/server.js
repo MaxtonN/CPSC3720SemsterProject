@@ -5,7 +5,9 @@ const routes = require('./routes/llmRoutes');
 
 app.use(express.json());// parse application/json
 app.use(express.urlencoded({extended:true})); // parse application/x-www-urlencoded
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 app.use('/api', routes);
 app.use((req,res) => {
     res.status(404).json({error: "Endpoint not found"});
