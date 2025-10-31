@@ -17,17 +17,20 @@ function BookingAssistantButton(props){
 
 function Message(props){
   console.log(props.message);
-  return (<span class="Message">{props.message}</span>);
+  return (
+  <div class="Message">
+    {props.message}
+  </div>
+  );
 }
 
 function MessageList(props){
   return (
     <div id="MessageList">
-      <ul>
+      <ul id="MessageList-ul">
         {
-          
           props.messages.map((message) => (
-            <span key={message}><Message message={message}/></span>
+            <Message message={message}/>
           ))
         }
       </ul>
@@ -94,7 +97,7 @@ function App() {
     setMessages = (newMessages) => {
       messages = newMessages;
     }
-  ] = useState(["App: Hello User", "What would you like me to do today?"]);
+  ] = useState(["Hello user what would you like me to do for you today?", "I want you to give me money!"]);
 
   console.log(messages);
   //setMessages(["Hello guest user, how can I help you today?"]);
