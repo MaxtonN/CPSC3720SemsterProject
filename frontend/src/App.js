@@ -23,6 +23,17 @@ function Message(props){
 }
 
 function MessageList({messages}){
+
+  
+  useEffect(() =>{
+    const scrollableElement = document.getElementById("MessageList");
+    if(scrollableElement){
+      setTimeout(() => {
+        scrollableElement.scrollTop = scrollableElement.scrollHeight;
+      }, 50);
+    }
+  }, [messages]);
+
   return (
     <div id="MessageList">
       <ul id="MessageList-ul">
@@ -40,7 +51,7 @@ function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
       <textarea id="ChatBotTextArea-textarea" onKeyDown={(event)=>{
-          if(event.key === "Enter" && event.shiftKey != true){
+          if(event.key === "Enter" && event.shiftKey != true && event.target.value != ""){
             event.preventDefault();
 
             const newMessages = {
@@ -56,12 +67,31 @@ function ChatBotTextArea(props){
             props.setMessages(newMessages);
             event.target.value = "";
           }
+          else if(event.key === "Enter" && event.shiftKey != true){
+            event.preventDefault();
+          }
         }
       } 
       placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
         <div id = "ChatBotTextAreaVoiceButton">Voice</div>
-        <div id = "ChatBotTextAreaSendButton">Send</div>
+        <div id = "ChatBotTextAreaSendButton" onClick={()=>{
+          const target = document.getElementById("ChatBotTextArea-textarea");
+          if(target.value != ""){
+            const newMessages = {
+              items: [
+                ...props.messages.items,
+                {
+                  message: target.value,
+                  role:"user",
+                  order:props.messages.items.length
+                }
+              ]
+            };
+            props.setMessages(newMessages);
+            target.value = "";
+          }
+        }}>Send</div>
       </div>
     </div>
   )
@@ -81,7 +111,6 @@ function BookingAssistantChat(props){
       ]
     }
   );
-
 
   return (
     <div id="BookingAssistantChat">
@@ -117,11 +146,11 @@ function App() {
       .catch((err) => console.error("Error fetching events:", err));
   }, []);
 
+
+
+
   // false -> show button; true -> show chatbot
   const [showAssistant, setShowAssistant] = useState(false);
-
-  
-
 
 
   /*
