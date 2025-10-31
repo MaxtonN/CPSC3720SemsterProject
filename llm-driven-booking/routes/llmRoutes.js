@@ -4,7 +4,5 @@ const { parseText, addBooking, getBookings } = require('../controllers/llmContro
 
 // endpoints 
 router.post('/llm/parse', parseText);
-router.post('/llm/book', addBooking);
-router.get('/llm/bookings', getBookings);
 
 module.exports = router;

@@ -14,7 +14,7 @@ const databaseFilePath = "../backend/shared-db/database.sqlite";
  *      - date -> date of the event
  *      - available_tickets -> how many tickets are still available for purchase
  */
-const getEvent = async (eventId) => {
+const RetrieveEventRowByID = async (eventId) => {
     const database = new Database(databaseFilePath);
     
     const statement = database.prepare("SELECT * FROM events WHERE id = ?"); // get row with matching id
@@ -35,7 +35,7 @@ const getEvent = async (eventId) => {
  * return:
  *  - list, list of all events in the shared database
  */
-const getEvents = async () => {
+const RetrieveEventRows = async () => {
     const database = new Database(databaseFilePath);
 
     const statement = database.prepare("SELECT * FROM events");
@@ -55,7 +55,7 @@ const getEvents = async () => {
  * return: object, returns the result of SQL script execution
  * 
  */
-const decrementTickets = async (eventId) => {   
+const DecrementAvailableTickets = async (eventId) => {   
     // lock down the database while making changes to prevent race conditions and corruption
     const database = new Database(databaseFilePath);
     const info = database.exec(`
@@ -68,4 +68,57 @@ const decrementTickets = async (eventId) => {
     return info;
 };
 
-module.exports = { getEvents, getEvent, decrementTickets };
+
+/*
+ * Adds a booking to the shared-database in the bookings table
+ *
+ * booking -> json object, should have a field for:
+ *      event_name -> (REQUIRED) string, name of the event
+ *      ticket_count -> (REQUIRED) integer, number of booked tickets
+ *      user -> (OPTIONAL, defauls to 'guest') string, name of the user who is booking the ticketss
+ * 
+ * returns: json object, database reply
+ */
+const AddBookingRow = async (booking) => {
+    const database = new Database(dbFilepath);
+
+    // allows the user field to be blank
+    if(booking.user){
+        // lock down database while making changes to prevent race conditions
+        const purchase = database.transaction((booking) => {
+            const statement = database.prepare("INSERT INTO bookings (event_name, user, ticket_count) VALUES (?, ?, ?)");
+            return statement.run(booking.event_name, booking.user, booking.ticket_count);
+        });
+        const response = purchase(booking);
+        database.close();
+
+        return response;
+    }
+    else{
+        // lock down database while making changes to prevent race conditions
+        const purchase = database.transaction((booking) => {
+            const statement = database.prepare("INSERT INTO bookings (event_name, ticket_count) VALUES (?, ?)");
+            return statement.run(booking.event_name, booking.ticket_count);
+        });
+        const response = purchase(booking);
+        database.close();
+
+        return response;
+    }
+}
+
+/* 
+ * Retrieves all bookings from the bookings table in the shared-db database
+ *
+ * return: json object, reprsentation of every row in the bookings table
+ */
+const RetrieveBookingRows = async () => {
+    const database = new Database(dbFilepath);
+
+    const statement = database.prepare("SELECT * FROM bookings");
+    const rows = statement.all();
+
+    return rows;
+}
+
+module.exports = { RetrieveEventRowByID, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows };
