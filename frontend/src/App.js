@@ -15,6 +15,34 @@ function BookingAssistantButton(props){
   );
 }
 
+function Message(props){
+  console.log(props.message);
+  return (<span class="Message">{props.message}</span>);
+}
+
+function MessageList(props){
+  return (
+    <div id="MessageList">
+      <ul>
+        {
+          
+          props.messages.map((message) => (
+            <span key={message}><Message message={message}/></span>
+          ))
+        }
+      </ul>
+    </div>
+  )
+}
+
+function ChatBotTextArea(props){
+  return (
+    <div id="ChatBotTextArea">
+      <textarea placeholder="Enter message here..."></textarea>
+    </div>
+  )
+}
+
 function BookingAssistantChat(props){
   return (
     <div id="BookingAssistantChat">
@@ -22,7 +50,10 @@ function BookingAssistantChat(props){
         <div id="BookingAssistantChatHeaderTitle">Booking Assistant</div>
         <div id="BookingAssistantChatHeaderExit" onClick={()=> props.setShowAssistant(false)}>X</div>
       </div>
-      <div id="BookingAssistantChatPanel">Greetings Guest User</div>
+      <div id="BookingAssistantChatPanel">
+        <MessageList messages={props.messages} setMessages={props.setMessages}/>
+        <ChatBotTextArea addMessages={props.addMessages}/>
+      </div>
     </div>
   )
 }
@@ -49,6 +80,20 @@ function App() {
 
   // false -> show button; true -> show chatbot
   const [showAssistant, setShowAssistant] = useState(false);
+
+  // stores messages between chat bot and user
+  const [
+    messages, 
+    addMessage = (message) => {
+      messages.push(message);
+    }, 
+    setMessages = (newMessages) => {
+      messages = newMessages;
+    }
+  ] = useState(["App: Hello User", "What would you like me to do today?"]);
+
+  console.log(messages);
+  //setMessages(["Hello guest user, how can I help you today?"]);
 
   /*
    * buyTicket:
@@ -151,7 +196,7 @@ function App() {
         </ul>
       </section>
 
-      {showAssistant && (<BookingAssistantChat setShowAssistant={setShowAssistant}/>)}
+      {showAssistant && (<BookingAssistantChat setShowAssistant={setShowAssistant} messages={messages} setMessages={setMessages} addMessage={addMessage}/>)}
       {!showAssistant && (<BookingAssistantButton setShowAssistant={setShowAssistant}/>)}
 
     </main>
