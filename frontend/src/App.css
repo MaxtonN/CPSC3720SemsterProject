@@ -136,15 +136,17 @@
 
 #MessageList{
   background-color: black;
-
+  
 }
 
 #MessageList-ul{
   margin-left:0;
   padding-left:0;
+  display: grid;
+  overflow-y:scroll;
 }
 
-.Message{
+.Message-assistant{
   width:fit-content;
   height: fit-content;
   min-width: 60px;
@@ -158,10 +160,34 @@
   border-style: solid;
   border-radius: 12px;
 
+  justify-self: flex-start;
   text-align: left;
 
   background-color: black;
   color: white;
+}
+
+.Message-user{
+  width:fit-content;
+  height: fit-content;
+  min-width: 60px;
+  max-width: 300px;
+
+  padding: 6px;
+  margin: 8px;
+
+  border-color: white;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 12px;
+
+  justify-self: flex-end;
+  text-align: left;
+
+  background-color: blue;
+  color: white;
+
+  overflow-wrap: break-word;
 }
 
 #ChatBotTextArea{

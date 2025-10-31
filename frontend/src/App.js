@@ -16,21 +16,19 @@ function BookingAssistantButton(props){
 }
 
 function Message(props){
-  console.log(props.message);
-  return (
-  <div class="Message">
-    {props.message}
-  </div>
-  );
+  if(props.role === "user")
+    return (<div className="Message-user">{props.message}</div>);
+  else
+    return (<div className="Message-assistant">{props.message}</div>);
 }
 
-function MessageList(props){
+function MessageList({messages}){
   return (
     <div id="MessageList">
       <ul id="MessageList-ul">
         {
-          props.messages.map((message) => (
-            <Message message={message}/>
+          messages.items.map((message) => (
+            <Message key={message.order} message={message.message} role={message.role}/>
           ))
         }
       </ul>
@@ -41,7 +39,26 @@ function MessageList(props){
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
-      <textarea id="ChatBotTextArea-textarea" placeholder="Enter message here..."></textarea>
+      <textarea id="ChatBotTextArea-textarea" onKeyDown={(event)=>{
+          if(event.key === "Enter" && event.shiftKey != true){
+            event.preventDefault();
+
+            const newMessages = {
+              items: [
+                ...props.messages.items,
+                {
+                  message: event.target.value,
+                  role:"user",
+                  order:props.messages.items.length
+                }
+              ]
+            };
+            props.setMessages(newMessages);
+            event.target.value = "";
+          }
+        }
+      } 
+      placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
         <div id = "ChatBotTextAreaVoiceButton">Voice</div>
         <div id = "ChatBotTextAreaSendButton">Send</div>
@@ -51,6 +68,21 @@ function ChatBotTextArea(props){
 }
 
 function BookingAssistantChat(props){
+
+  // stores messages between chat bot and user
+  const [ messages, setMessages] = useState(
+    {
+      items: [
+        {
+          message:'Hello user what would you like me to do for you today?', 
+          role:"assistant",
+          order: 0
+        }
+      ]
+    }
+  );
+
+
   return (
     <div id="BookingAssistantChat">
       <div id="BookingAssistantChatHeader">
@@ -58,8 +90,8 @@ function BookingAssistantChat(props){
         <div id="BookingAssistantChatHeaderExit" onClick={()=> props.setShowAssistant(false)}>X</div>
       </div>
       <div id="BookingAssistantChatPanel">
-        <MessageList messages={props.messages} setMessages={props.setMessages}/>
-        <ChatBotTextArea addMessages={props.addMessages}/>
+        <MessageList messages={messages}/>
+        <ChatBotTextArea messages={messages} setMessages={setMessages}/>
       </div>
     </div>
   )
@@ -88,19 +120,9 @@ function App() {
   // false -> show button; true -> show chatbot
   const [showAssistant, setShowAssistant] = useState(false);
 
-  // stores messages between chat bot and user
-  const [
-    messages, 
-    addMessage = (message) => {
-      messages.push(message);
-    }, 
-    setMessages = (newMessages) => {
-      messages = newMessages;
-    }
-  ] = useState(["Hello user what would you like me to do for you today?", "I want you to give me money!"]);
+  
 
-  console.log(messages);
-  //setMessages(["Hello guest user, how can I help you today?"]);
+
 
   /*
    * buyTicket:
@@ -203,7 +225,7 @@ function App() {
         </ul>
       </section>
 
-      {showAssistant && (<BookingAssistantChat setShowAssistant={setShowAssistant} messages={messages} setMessages={setMessages} addMessage={addMessage}/>)}
+      {showAssistant && (<BookingAssistantChat setShowAssistant={setShowAssistant}/>)}
       {!showAssistant && (<BookingAssistantButton setShowAssistant={setShowAssistant}/>)}
 
     </main>
