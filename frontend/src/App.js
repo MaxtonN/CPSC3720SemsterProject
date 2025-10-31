@@ -7,6 +7,24 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
+function BookingAssistantButton(props){
+
+  return (
+    <div id="BookingAssistantButton">
+      <button onClick={() => props.setShowAssistant(true)}>Button</button>
+    </div>
+  );
+}
+
+function BookingAssistantChat(props){
+  return (
+    <div id="BookingAssistantChat">
+      chatbot
+    </div>
+  )
+}
+
+
 function App() {
   // stores data from the backend
   const [events, setEvents] = useState([]);
@@ -25,6 +43,9 @@ function App() {
       .then((data) => setEvents(data))
       .catch((err) => console.error("Error fetching events:", err));
   }, []);
+
+  // false -> show button; true -> show chatbot
+  const [showAssistant, setShowAssistant] = useState(false);
 
   /*
    * buyTicket:
@@ -126,6 +147,10 @@ function App() {
           ))}
         </ul>
       </section>
+
+      {showAssistant && (<BookingAssistantChat/>)}
+      {!showAssistant && (<BookingAssistantButton setShowAssistant={setShowAssistant}/>)}
+
     </main>
   );
 }
