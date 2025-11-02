@@ -462,45 +462,6 @@ function BookingAssistantChat(props){
     }
   );
 
-
-  /*
-  //communication with llm-driven-booking
-  useEffect(()=>{
-    // runs when the user sends a message
-    const sendMessage = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/llm/parse", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": true
-          },
-          body: JSON.stringify({message: messages.items[messages.items.length-1].message})
-        });
-
-        const data = await response.json();
-        return data;
-      }
-      catch(error){
-        console.error("Error sending message: ", error);
-      }
-    };
-
-    // if the most recent message is by the user then send to the llm
-    const handleSendMessage = async () =>{
-      if (messages.items.length > 0 && messages.items[messages.items.length-1].role === "user"){
-        const data = await sendMessage();
-
-        if(data && data.intent === "book"){
-          //confirm("Would you like to book a ticket for " + data.event_name + "?");
-        }
-      }
-    };
-
-    handleSendMessage();
-
-  }, [messages])*/
-
   return (
     <div id="BookingAssistantChat">
       <div id="BookingAssistantChatHeader">
