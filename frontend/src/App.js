@@ -7,44 +7,10 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-function BookingAssistantButton(props){
-  return (
-    <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
-    </div>
-  );
-}
 
-function Message(props){
-  if(props.role === "user")
-    return (<div className="Message-user">{props.message}</div>);
-  else
-    return (<div className="Message-assistant">{props.message}</div>);
-}
-
-function MessageList({messages}){
-
-  // scrolls to the bottom of the message list when a new message is added
-  useEffect(() =>{
-    const scrollableElement = document.getElementById("MessageList");
-    if(scrollableElement){
-      setTimeout(() => {
-        scrollableElement.scrollTop = scrollableElement.scrollHeight;
-      }, 50);
-    }
-  }, [messages]);
-
-  return (
-    <div id="MessageList">
-      <ul id="MessageList-ul">
-        {
-          messages.items.map((message) => (
-            <Message key={message.order} message={message.message} role={message.role}/>
-          ))
-        }
-      </ul>
-    </div>
-  )
-}
+///////////////
+// API CALLS //
+///////////////
 
 // sends the llm-driven-booking service the user message and returns the llm response
 const sendLLMMessage = async (userMessage) => {
@@ -85,6 +51,10 @@ const getEventByName = async (eventName) => {
 };
 
 // retrieves events based on query parameters from client-service
+// supported query key-value pairs:
+//  available_tickets : integer (searches for events with more tickets than given integer)
+//  before: date (searches for events before given date)
+//  after: date (searches for events after given date)
 const getEventsQuery = async (queryParams) => {
   try{
     const response = await fetch(`http://localhost:6001/api/events/query?${new URLSearchParams(queryParams)}`, {
@@ -201,7 +171,25 @@ const storeBooking = async (event_name, ticket_count) => {
   }
 };
 
-// handles user input in the chat text areas
+// gets all of the Events from the client-service
+const getEvents = async (setEvents) =>{
+  try{
+    fetch("http://localhost:6001/api/events") // Client service endpoint
+      .then((res) => res.json())
+      .then((data) => setEvents(data))
+      .catch((err) => console.error("Error fetching events:", err));
+  }
+  catch(error){
+    console.error("Error fetching events: ", error);
+  }
+}
+
+
+////////////////////
+// EVENT HANDLERS //
+////////////////////
+
+// handles user input in the chat text areas; executes on key press
 const handleTextAreaKeyDown = async (event, props) =>{
   if(event.key === "Enter" && event.shiftKey !== true && event.target.value !== ""){
     event.preventDefault();
@@ -211,17 +199,14 @@ const handleTextAreaKeyDown = async (event, props) =>{
     addMessageToList(props.setMessages, query, "user");
     event.target.value = "";
 
-    // if the user is requesting to see events with available tickets; show those events
-    if(query.toLowerCase().includes("show me events with available tickets".toLowerCase())){
+    // handles see events requests
+    if(query.toLowerCase().includes("show me events with available tickets")){
       const events = await getEventsQuery({available_tickets: 0});
-      if(!events || events.error){
-        addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant");
-        return;
-      }
-      else{
+      if(!events || events.error)
+        addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant"); 
+      else
         addMessageToList(props.setMessages, `Here are the events with available tickets: ${events.map(event => event.name).join(", ")}`, "assistant");
-        return;
-      }
+      return;
     }
 
     // sending message to llm-driven-booking
@@ -231,75 +216,172 @@ const handleTextAreaKeyDown = async (event, props) =>{
       return;
     }
 
-    // checking if event exists; if it does confirm booking with the user
+    // message validation
     const eventData = await getEventByName(llmData.event_name);
     if(!eventData || eventData.error){
       addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
       return;
     }
-    else{
-      const confirmation = window.confirm(`Would you like to book ${llmData.ticket_amount} ticket(s) for "${eventData.name}" on ${new Date(eventData.date).toLocaleString()}?`);
-      console.log(eventData);
-      if(confirmation){
-
-        if(eventData.available_tickets < llmData.ticket_amount){
-          addMessageToList(props.setMessages, `I'm sorry, there are only ${eventData.available_tickets} tickets available for "${eventData.name}". Please adjust the ticket amount and try again.`, "assistant");
-          return;
-        }
-
-        // booking confirmed; purchase tickets through client-service and store booking in shared-db; how do I make both of these work? questions for when I have more time...
-        const purchaseResponse = await purchaseTickets(eventData.id, llmData.ticket_amount, props.setEvents);
-        if(!purchaseResponse || purchaseResponse.error){
-          addMessageToList(props.setMessages, "I'm sorry, there was an error purchasing your tickets. Please try again.", "assistant");
-          return;
-        }
-        const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
-        if(!bookingResponse || bookingResponse.error){
-          addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
-          return;
-        }
-
-        addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
-        return;
-      }
-      else{
-        addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
-      }
+    else if(eventData.available_tickets < llmData.ticket_amount){
+      addMessageToList(props.setMessages, `I'm sorry, there are only ${eventData.available_tickets} tickets available for "${eventData.name}". Please adjust the ticket amount and try again.`, "assistant");
+      return;
     }
+
+    // asking for user confirmation
+    const confirmation = window.confirm(`Would you like to book ${llmData.ticket_amount} ticket(s) for "${eventData.name}" on ${new Date(eventData.date).toLocaleString()}?`);
+    if(!confirmation){
+      addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
+      return;
+    }
+    
+
+    // sending purchase to client-service    
+    const purchaseResponse = await purchaseTickets(eventData.id, llmData.ticket_amount, props.setEvents);
+    if(!purchaseResponse || purchaseResponse.error){
+      addMessageToList(props.setMessages, "I'm sorry, there was an error purchasing your tickets. Please try again.", "assistant");
+      return;
+    }
+
+    // sending booking to client-service
+    const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
+    if(!bookingResponse || bookingResponse.error){
+      addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
+      return;
+    }
+
+    // confirmation message to user
+    addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
   }
   else if(event.key === "Enter" && event.shiftKey !== true){
     event.preventDefault();
   }
 }
 
+// handles user input in the chat text area; executes on send button click
+const handleSendButtonClick = async (props) => {
+  // saving to messages, clearing text area
+  const textarea = document.getElementById("ChatBotTextArea-textarea");
+  const query = textarea.value;
+  addMessageToList(props.setMessages, query, "user");
+  textarea.value = "";
+
+  // handles see events requests
+  if(query.toLowerCase().includes("show me events with available tickets")){
+    const events = await getEventsQuery({available_tickets: 0});
+    if(!events || events.error)
+      addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant"); 
+    else
+      addMessageToList(props.setMessages, `Here are the events with available tickets: ${events.map(event => event.name).join(", ")}`, "assistant");
+    return;
+  }
+
+  // sending message to llm-driven-booking
+  const llmData = await sendLLMMessage(query);
+  if(!llmData || llmData.error){
+    addMessageToList(props.setMessages, "I'm sorry, there was an error processing your request. Please try again", "assistant");
+    return;
+  }
+
+  // message validation
+  const eventData = await getEventByName(llmData.event_name);
+  if(!eventData || eventData.error){
+    addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
+    return;
+  }
+  else if(eventData.available_tickets < llmData.ticket_amount){
+    addMessageToList(props.setMessages, `I'm sorry, there are only ${eventData.available_tickets} tickets available for "${eventData.name}". Please adjust the ticket amount and try again.`, "assistant");
+    return;
+  }
+
+  // asking for user confirmation
+  const confirmation = window.confirm(`Would you like to book ${llmData.ticket_amount} ticket(s) for "${eventData.name}" on ${new Date(eventData.date).toLocaleString()}?`);
+  if(!confirmation){
+    addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
+    return;
+  }
+
+  // sending purchase to client-service
+  const purchaseResponse = await purchaseTickets(eventData.id, llmData.ticket_amount, props.setEvents);
+  if(!purchaseResponse || purchaseResponse.error){
+    addMessageToList(props.setMessages, "I'm sorry, there was an error purchasing your tickets. Please try again.", "assistant");
+    return;
+  }
+
+  // sending booking to client-service
+  const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
+  if(!bookingResponse || bookingResponse.error){
+    addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
+    return;
+  }
+
+  // confirmation message to user
+  addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
+};
+
+const handleVoiceButtonClick = async (props) =>{
+  return;
+}
+
+//////////////////////
+// REACT COMPONENTS //
+//////////////////////
+
+// button to open booking assistant chat bot messaging panel
+function BookingAssistantButton(props){
+  return (
+    <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
+    </div>
+  );
+}
+
+// individual message component in the chat bot message list
+function Message(props){
+  if(props.role === "user")
+    return (<div className="Message-user">{props.message}</div>);
+  else
+    return (<div className="Message-assistant">{props.message}</div>);
+}
+
+// list of messages in the chat bot messaging panel
+function MessageList({messages}){
+
+  // scrolls to the bottom of the message list when a new message is added
+  useEffect(() =>{
+    const scrollableElement = document.getElementById("MessageList");
+    if(scrollableElement){
+      setTimeout(() => {
+        scrollableElement.scrollTop = scrollableElement.scrollHeight;
+      }, 50);
+    }
+  }, [messages]);
+
+  return (
+    <div id="MessageList">
+      <ul id="MessageList-ul">
+        {
+          messages.items.map((message) => (
+            <Message key={message.order} message={message.message} role={message.role}/>
+          ))
+        }
+      </ul>
+    </div>
+  )
+}
+
+// chat bot text area for messaging panel
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
       <textarea id="ChatBotTextArea-textarea" onKeyDown={ (event) => {handleTextAreaKeyDown(event, props)}} placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
-        <div id = "ChatBotTextAreaVoiceButton">Voice</div>
-        <div id = "ChatBotTextAreaSendButton" onClick={()=>{
-          const target = document.getElementById("ChatBotTextArea-textarea");
-          if(target.value !== ""){
-            const newMessages = {
-              items: [
-                ...props.messages.items,
-                {
-                  message: target.value,
-                  role:"user",
-                  order:props.messages.items.length
-                }
-              ]
-            };
-            props.setMessages(newMessages);
-            target.value = "";
-          }
-        }}>Send</div>
+        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props)}}>Voice</div>
+        <div id = "ChatBotTextAreaSendButton" onClick={()=>{ handleSendButtonClick(props)}}>Send</div>
       </div>
     </div>
   )
 }
 
+// pannel for the booking assistnant chat
 function BookingAssistantChat(props){
 
   // stores messages between chat bot and user
@@ -372,30 +454,16 @@ function BookingAssistantChat(props){
 function App() {
   // stores data from the backend
   const [events, setEvents] = useState([]);
-
-  /*
-   * useEffect:
-   * 
-   * retrieves the list of campus events from the client microservice
-   * 
-   * returns:
-   *  - nothing
-   */
-  useEffect(() => {
-    fetch("http://localhost:6001/api/events") // Client service endpoint
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.error("Error fetching events:", err));
-  }, []);
-
-
-
-
+  
   // false -> show button; true -> show chatbot
   const [showAssistant, setShowAssistant] = useState(false);
 
+  // fetches all event rows on startup
+  useEffect(() => {
+    getEvents(setEvents);
+  }, []);
 
- 
+
 
   /*
    * page and image format and accesibility
