@@ -1,4 +1,4 @@
-const { RetrieveEventRowByID, RetrieveEventRowsByName,RetrieveEventRows, RetrieveEventRowsQuery, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
+const { RetrieveEventRowByID, RetrieveEventRowsByName,RetrieveEventRows, RetrieveEventRowsQuery, DecreaseAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
 const { Mutex } = require('async-mutex');
 
 /*
@@ -58,17 +58,21 @@ const getEventsQuery = async (req, res) => {
  * req -> object, api request
  * res -> object, api response
  */
-const purchaseTicket = async (req, res) => {
+const purchaseTickets = async (req, res) => {
     // validate request
     if(!req || !req.params || !req.params.id) {
-        await res.status(400).send('Bad Request: No event ID provided');
+        await res.status(400).json({error: 'Bad Request: No event ID provided'});
+        return;
+    }
+    if(isNaN(req.body.ticket_amount)) {
+        await res.status(400).json({error: 'Bad Request: Invalid ticket amount'});
         return;
     }
 
     // validate event existence
     const row = await RetrieveEventRowByID(req.params.id);
     if(!row){
-        await res.status(400).send(`Bad Request: Event with id: ${req.params.id} could not be found`);
+        await res.status(400).json({error: `Bad Request: Event with id: ${req.params.id} could not be found`});
         return;
     }
 
@@ -77,24 +81,24 @@ const purchaseTicket = async (req, res) => {
     const mutex = new Mutex();
     const release = await mutex.acquire();
     if(row.available_tickets == 0){
-        await res.status(400).send(`Bad Request: Cannot purchase ticket for sold out event`);
+        await res.status(400).json({error: `Bad Request: Cannot purchase ticket for sold out event`});
         return;
     }
 
     try{
-        let info = await DecrementAvailableTickets(req.params.id);
+        let info = await DecreaseAvailableTickets(req.params.id, req.body.ticket_amount);
         if(!info){
-            await res.status(500).send("Internal Server Error: SQL script failure");
+            await res.status(500).json({error: "Internal Server Error: SQL script failure"});
             return;
         }
     }
     catch{
-        await res.status(500).send("Internal Server Error: Unknown Exception");
+        await res.status(500).json({error: "Internal Server Error: Unknown Exception"});
         return;
     }
     release();
-    
-    await res.status(200).send("Success");
+
+    await res.status(200).json({message: "Success"});
 };
 
 /*
@@ -108,7 +112,7 @@ const purchaseTicket = async (req, res) => {
  */
 const addBooking = async (req, res) => {
     if(!req.body.event_name || !req.body.ticket_count){
-        res.status(400).send("Bad Request: Missing body information");
+        res.status(400).json({error: "Bad Request: Missing body information"});
         return;
     }
 
@@ -118,12 +122,12 @@ const addBooking = async (req, res) => {
             res.status(200).json(response);
         }
         else{
-            res.status(500).send("Internal Server Error: Unknown");
+            res.status(500).json({error: "Internal Server Error: Unknown"});
         }
     }
     catch(error){
         console.log(error);
-        res.status(500).send("Internal Server Error: Unknown");
+        res.status(500).json({error: "Internal Server Error: Unknown"});
     }
 };
 
@@ -175,4 +179,4 @@ const getEventByName = async (req, res) => {
     }
 }
 
-module.exports = { getEvents, purchaseTicket, addBooking, getBookings, getEventByName, getEventsQuery };
+module.exports = { getEvents, purchaseTickets, addBooking, getBookings, getEventByName, getEventsQuery };
