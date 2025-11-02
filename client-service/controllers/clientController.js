@@ -1,4 +1,4 @@
-const { RetrieveEventRowByID, RetrieveEventRowsByName,RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
+const { RetrieveEventRowByID, RetrieveEventRowsByName,RetrieveEventRows, RetrieveEventRowsQuery, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
 const { Mutex } = require('async-mutex');
 
 /*
@@ -15,6 +15,30 @@ const getEvents = async (req, res) => {
         await res.status(200).json(events);
 };
 
+/*
+ * returns a list of all events matching the given query parameters
+ *
+ * req -> object, api request
+ * res -> object, api response
+*/
+const getEventsQuery = async (req, res) => {
+    
+    const availableTickets = req.query.available_tickets;
+    
+    try{
+        const events = await RetrieveEventRowsQuery(availableTickets);
+        if(!events){
+            await res.status(500).json({error: "Internal Server Error: Unknown"});
+        }
+        else{
+            await res.status(200).json(events);
+        }
+        return;
+    }
+    catch(error){
+        await res.status(500).json({error: "Internal Server Error: Unknown"});
+    }
+}
 
 /*
  * simulates the purchase of a ticket for an event, wrapper for decrementTickets(...)
@@ -140,4 +164,4 @@ const getEventByName = async (req, res) => {
     }
 }
 
-module.exports = { getEvents, purchaseTicket, addBooking, getBookings, getEventByName };
+module.exports = { getEvents, purchaseTicket, addBooking, getBookings, getEventByName, getEventsQuery };

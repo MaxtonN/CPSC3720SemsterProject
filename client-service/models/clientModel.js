@@ -61,7 +61,28 @@ const RetrieveEventRows = async () => {
     return rows;
 };
 
-// decrement event ticket count, count should always be one, assumes a non-null eventID, returns a statusNumber and message
+/*
+ * retrieves all events matching the given query parameters
+ * 
+ * availableTickets -> boolean, if true, only events where available_tickets > 0 are returned
+ * 
+ * return: json object, list of all events matching the query parameters
+ */
+const RetrieveEventRowsQuery = async (availableTickets) => {
+    const database = new Database(databaseFilePath);
+    if(availableTickets){
+        const statement = database.prepare("SELECT * FROM events WHERE available_tickets > 0");
+        const rows = statement.all();
+        database.close();
+        return rows;
+    }
+    else{
+        const statement = database.prepare("SELECT * FROM events");
+        const rows = statement.all();
+        database.close();
+        return rows;
+    }
+}
 
 /*
  * decrementTickets reduces the amount 'available_tickets' refered to by the eventID by one. 
@@ -137,4 +158,4 @@ const RetrieveBookingRows = async () => {
     return rows;
 }
 
-module.exports = { RetrieveEventRowByID, RetrieveEventRowsByName, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows };
+module.exports = { RetrieveEventRowByID, RetrieveEventRowsByName, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows, RetrieveEventRowsQuery };

@@ -84,6 +84,22 @@ const getEventByName = async (eventName) => {
   }
 };
 
+// retrieves events based on query parameters from client-service
+const getEventsQuery = async (queryParams) => {
+  try{
+    const response = await fetch(`http://localhost:6001/api/events/query?${new URLSearchParams(queryParams)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    return await response.json();
+  }
+  catch(error){
+    console.error("Error fetching events with query: ", error);
+  }
+}
+
 // adds a message to the message list with the given role; will update all components using the messages state
 const addMessageToList = (setMessages, message, role) => {
   setMessages((prevMessages) => {
@@ -112,6 +128,21 @@ function ChatBotTextArea(props){
             const query = event.target.value;
             addMessageToList(props.setMessages, query, "user");
             event.target.value = "";
+
+            // if the user is requesting to see events with available tickets; show those events
+            if(query.toLowerCase().includes("show me events with available tickets".toLowerCase())){
+              // special case for showing events with available tickets
+
+              const events = await getEventsQuery({available_tickets: true});
+              if(!events || events.error){
+                addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant");
+                return;
+              }
+              else{
+                addMessageToList(props.setMessages, `Here are the events with available tickets: ${events.map(event => event.name).join(", ")}`, "assistant");
+                return;
+              }
+            }
 
             // sending message to llm-driven-booking
             const llmData = await sendLLMMessage(query);
