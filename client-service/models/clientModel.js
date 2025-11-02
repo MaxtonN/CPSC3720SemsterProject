@@ -68,20 +68,13 @@ const RetrieveEventRows = async () => {
  * 
  * return: json object, list of all events matching the query parameters
  */
-const RetrieveEventRowsQuery = async (availableTickets) => {
+const RetrieveEventRowsQuery = async (query) => {
     const database = new Database(databaseFilePath);
-    if(availableTickets){
-        const statement = database.prepare("SELECT * FROM events WHERE available_tickets > 0");
-        const rows = statement.all();
-        database.close();
-        return rows;
-    }
-    else{
-        const statement = database.prepare("SELECT * FROM events");
-        const rows = statement.all();
-        database.close();
-        return rows;
-    }
+    const statement = database.prepare(`SELECT * FROM events WHERE ${query}`);
+    const rows = statement.all();
+    database.close();
+
+    return rows;
 }
 
 /*

@@ -22,11 +22,22 @@ const getEvents = async (req, res) => {
  * res -> object, api response
 */
 const getEventsQuery = async (req, res) => {
-    
-    const availableTickets = req.query.available_tickets;
-    
+    // construcing query string for database sql query statement
+    let queryList = [];
+    if(req.query && req.query.available_tickets){
+        queryList.push(`available_tickets > ${req.query.available_tickets}`);
+    }
+    if(req.query && req.query.before_date){
+        queryList.push(`date < '${req.query.before_date}'`);
+    }
+    if(req.query && req.query.after_date){
+        queryList.push(`date > '${req.query.after_date}'`);
+    }
+    const query = queryList.join(" AND ");
+
+
     try{
-        const events = await RetrieveEventRowsQuery(availableTickets);
+        const events = await RetrieveEventRowsQuery(query);
         if(!events){
             await res.status(500).json({error: "Internal Server Error: Unknown"});
         }

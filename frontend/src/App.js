@@ -133,7 +133,7 @@ function ChatBotTextArea(props){
             if(query.toLowerCase().includes("show me events with available tickets".toLowerCase())){
               // special case for showing events with available tickets
 
-              const events = await getEventsQuery({available_tickets: true});
+              const events = await getEventsQuery({available_tickets: 0});
               if(!events || events.error){
                 addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant");
                 return;
