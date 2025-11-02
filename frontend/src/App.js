@@ -184,8 +184,11 @@ const getEvents = async (setEvents) =>{
   }
 }
 
-// gets speech-to-text transcription from audio input with SpeechRecognition API
+// gets speech-to-text transcription from audio input with Web Speech API
 const getSpeechToText = async (audio) =>{
+
+  
+
   return;
 }
 
@@ -328,8 +331,58 @@ const handleSendButtonClick = async (props) => {
   addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
 };
 
-const handleVoiceButtonClick = async (props) =>{
-  return;
+// handles user input in the chat text area; executes on voice button click
+const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice) => {
+  // should the button press start or stop recording?
+  if(!recordingVoice){
+    setRecordingVoice(true);
+  }
+  else if(recordingVoice && window.__speechRecognitionInstance){
+    window.__speechRecognitionInstance.stop();
+    setRecordingVoice(false);
+    delete window.__speechRecognitionInstance;
+    return;
+  }
+
+  // check for browser support
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    console.error("Speech Recognition API not supported in this browser.");
+    addMessageToList(props.setMessages, "I'm sorry, your browser does not support the Speech Recognition API. Please use a different browser or type your message.", "assistant");
+    return;
+  }
+
+  // start recording
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  recognition.start();
+  window.__speechRecognitionInstance = recognition;
+
+  recognition.onresult = (event) => {
+    const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join('');
+    console.log("Transcript: ", transcript);
+    addMessageToList(props.setMessages, transcript, "user");
+    
+    setRecordingVoice(false);
+    recognition.stop();
+  };
+
+  recognition.onerror = (event) =>{
+    console.error("Speech recognition error: ", event.error);
+
+    setRecordingVoice(false);
+    delete window.__speechRecognitionInstance;
+  };
+  
+  recognition.onend = () => {
+    console.log("Speech recognition ended.");
+    setRecordingVoice(false);
+    delete window.__speechRecognitionInstance;
+  }
 }
 
 //////////////////////
@@ -380,11 +433,13 @@ function MessageList({messages}){
 
 // chat bot text area for messaging panel
 function ChatBotTextArea(props){
+  const [recordingVoice, setRecordingVoice] = useState(false);
+
   return (
     <div id="ChatBotTextArea">
       <textarea id="ChatBotTextArea-textarea" onKeyDown={ (event) => {handleTextAreaKeyDown(event, props)}} placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
-        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props)}}>Voice</div>
+        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props, recordingVoice, setRecordingVoice)}}>Voice</div>
         <div id = "ChatBotTextAreaSendButton" onClick={()=>{ handleSendButtonClick(props)}}>Send</div>
       </div>
     </div>
