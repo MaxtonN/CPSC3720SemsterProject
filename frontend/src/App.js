@@ -47,19 +47,58 @@ function MessageList({messages}){
   )
 }
 
+// sends the llm-driven-booking service the user message and returns the llm response
+const sendLLMMessage = async (userMessage) => {
+  try {
+    const response = await fetch("http://localhost:8080/api/llm/parse", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": true
+      },
+      body: JSON.stringify({message: userMessage})
+    });
+
+    const data = await response.json();
+    return data;
+  }
+  catch(error){
+    console.error("Error sending message: ", error);
+  }
+};
+
+// retrieves event information by name from client-service
+const getEventByName = async (eventName) => {
+  try{
+    const response = await fetch(`http://localhost:6001/api/events/name/${encodeURIComponent(eventName)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await response.json();
+    return data;
+  }
+  catch(error){
+    console.error("Error fetching event by name: ", error);
+  }
+};
 
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
-      <textarea id="ChatBotTextArea-textarea" onKeyDown={(event)=>{
+      <textarea id="ChatBotTextArea-textarea" onKeyDown={async(event)=>{
           if(event.key === "Enter" && event.shiftKey != true && event.target.value != ""){
             event.preventDefault();
 
+            // saving to messages, clearing text area
+            const query = event.target.value;
             const newMessages = {
               items: [
                 ...props.messages.items,
                 {
-                  message: event.target.value,
+                  message: query,
                   role:"user",
                   order:props.messages.items.length
                 }
@@ -67,6 +106,21 @@ function ChatBotTextArea(props){
             };
             props.setMessages(newMessages);
             event.target.value = "";
+
+
+            // sending message to llm-driven-booking
+            const llmData = await sendLLMMessage(query);
+
+            // checking if event exists
+            const eventData = await getEventByName(llmData.event_name);
+            
+            // confirming that the user wants to book tickets
+            if(llmData && llmData.intent === "book"){
+              const confirmation = window.confirm("Are you sure");
+              console.log(confirmation);
+            }
+
+            // book tickets + purchase tickets
           }
           else if(event.key === "Enter" && event.shiftKey !== true){
             event.preventDefault();
@@ -113,8 +167,11 @@ function BookingAssistantChat(props){
     }
   );
 
-  // message should just be text
+
+  /*
+  //communication with llm-driven-booking
   useEffect(()=>{
+    // runs when the user sends a message
     const sendMessage = async () => {
       try {
         const response = await fetch("http://localhost:8080/api/llm/parse", {
@@ -127,7 +184,7 @@ function BookingAssistantChat(props){
         });
 
         const data = await response.json();
-        console.log(data);
+        return data;
       }
       catch(error){
         console.error("Error sending message: ", error);
@@ -135,11 +192,19 @@ function BookingAssistantChat(props){
     };
 
     // if the most recent message is by the user then send to the llm
-    if (messages.items.length > 0 && messages.items[messages.items.length-1].role === "user"){
-      sendMessage();
-    }
+    const handleSendMessage = async () =>{
+      if (messages.items.length > 0 && messages.items[messages.items.length-1].role === "user"){
+        const data = await sendMessage();
 
-  }, [messages])
+        if(data && data.intent === "book"){
+          //confirm("Would you like to book a ticket for " + data.event_name + "?");
+        }
+      }
+    };
+
+    handleSendMessage();
+
+  }, [messages])*/
 
   return (
     <div id="BookingAssistantChat">

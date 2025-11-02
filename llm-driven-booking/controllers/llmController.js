@@ -28,12 +28,14 @@ const keywordParse = (message) => {
         response.intent = "book";
     }
     else{
+        console.log("No valid action verb found", actionVerb);
         return null;
     }
 
     // checking for ticket_amount
     const ticketAmount = parseInt(wordlist[1]);
-    if(ticketAmount === NaN){
+    if(isNaN(ticketAmount) || ticketAmount <= 0){
+        console.log("No valid ticket amount found");
         return null;
     }
     else{
