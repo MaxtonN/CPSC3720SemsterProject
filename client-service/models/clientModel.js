@@ -111,8 +111,8 @@ const DecreaseAvailableTickets = async (eventId, amount) => {
  * returns: json object, database reply
  */
 const AddBookingRow = async (booking) => {
-    const database = new Database(dbFilepath);
-
+    const database = new Database(databaseFilePath);
+    
     // allows the user field to be blank
     if(booking.user){
         // lock down database while making changes to prevent race conditions

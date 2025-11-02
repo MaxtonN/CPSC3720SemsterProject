@@ -185,14 +185,14 @@ const buyTicket = async (id, setEvents) => {
 };
 
 // stores booking information in shared-db through booking-service
-const storeBooking = async (event_name, ticket_amount) => {
+const storeBooking = async (event_name, ticket_count) => {
   try{
-    const response = await fetch("http://localhost:6001/api/bookings", {
+    const response = await fetch("http://localhost:6001/api/book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({event_name: event_name, ticket_amount: ticket_amount})
+      body: JSON.stringify({event_name: event_name, ticket_count: ticket_count})
     });
     return await response.json();
   }
