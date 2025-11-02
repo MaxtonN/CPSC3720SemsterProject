@@ -131,7 +131,7 @@ const getEventByName = async (req, res) => {
             return;
         }
         else if(response){
-            res.status(200).json(response);
+            res.status(200).json(response[0]);
         }
     }
     catch(error){

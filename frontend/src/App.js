@@ -113,7 +113,6 @@ function ChatBotTextArea(props){
 
             // checking if event exists
             const eventData = await getEventByName(llmData.event_name);
-            console.log(eventData);
             
             // confirming that the user wants to book tickets
             if(llmData && llmData.intent === "book"){
