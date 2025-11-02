@@ -89,7 +89,7 @@ function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
       <textarea id="ChatBotTextArea-textarea" onKeyDown={async(event)=>{
-          if(event.key === "Enter" && event.shiftKey != true && event.target.value != ""){
+          if(event.key === "Enter" && event.shiftKey !== true && event.target.value !== ""){
             event.preventDefault();
 
             // saving to messages, clearing text area
@@ -113,6 +113,7 @@ function ChatBotTextArea(props){
 
             // checking if event exists
             const eventData = await getEventByName(llmData.event_name);
+            console.log(eventData);
             
             // confirming that the user wants to book tickets
             if(llmData && llmData.intent === "book"){
@@ -132,7 +133,7 @@ function ChatBotTextArea(props){
         <div id = "ChatBotTextAreaVoiceButton">Voice</div>
         <div id = "ChatBotTextAreaSendButton" onClick={()=>{
           const target = document.getElementById("ChatBotTextArea-textarea");
-          if(target.value != ""){
+          if(target.value !== ""){
             const newMessages = {
               items: [
                 ...props.messages.items,

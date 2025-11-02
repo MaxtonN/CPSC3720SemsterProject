@@ -1,4 +1,4 @@
-const { RetrieveEventRowByID, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
+const { RetrieveEventRowByID, RetrieveEventRowsByName,RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows } = require('../models/clientModel');
 const { Mutex } = require('async-mutex');
 
 /*
@@ -124,8 +124,13 @@ const getEventByName = async (req, res) => {
     }
 
     try{
-        const response = await RetrieventEventRowsByName(req.params.name);
-        if(response){
+        const response = await RetrieveEventRowsByName(req.params.name);
+        
+        if(response && response.length === 0){
+            res.status(404).json({error: `Not Found: No events found with name: ${req.params.name}`});
+            return;
+        }
+        else if(response){
             res.status(200).json(response);
         }
     }
