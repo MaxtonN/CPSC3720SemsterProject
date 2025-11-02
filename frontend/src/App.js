@@ -8,7 +8,6 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 function BookingAssistantButton(props){
-
   return (
     <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
     </div>
@@ -24,7 +23,7 @@ function Message(props){
 
 function MessageList({messages}){
 
-  
+  // scrolls to the bottom of the message list when a new message is added
   useEffect(() =>{
     const scrollableElement = document.getElementById("MessageList");
     if(scrollableElement){
@@ -85,6 +84,23 @@ const getEventByName = async (eventName) => {
   }
 };
 
+// adds a message to the message list with the given role; will update all components using the messages state
+const addMessageToList = (setMessages, message, role) => {
+  setMessages((prevMessages) => {
+    const order = prevMessages.items.length;
+    return {
+      items: [
+        ...prevMessages.items,
+        {
+          message: message,
+          role: role,
+          order: order
+        }
+      ]
+    };
+  });
+};
+
 function ChatBotTextArea(props){
   return (
     <div id="ChatBotTextArea">
@@ -94,33 +110,36 @@ function ChatBotTextArea(props){
 
             // saving to messages, clearing text area
             const query = event.target.value;
-            const newMessages = {
-              items: [
-                ...props.messages.items,
-                {
-                  message: query,
-                  role:"user",
-                  order:props.messages.items.length
-                }
-              ]
-            };
-            props.setMessages(newMessages);
+            addMessageToList(props.setMessages, query, "user");
             event.target.value = "";
-
 
             // sending message to llm-driven-booking
             const llmData = await sendLLMMessage(query);
-
-            // checking if event exists
-            const eventData = await getEventByName(llmData.event_name);
-            
-            // confirming that the user wants to book tickets
-            if(llmData && llmData.intent === "book"){
-              const confirmation = window.confirm("Are you sure");
-              console.log(confirmation);
+            if(!llmData || llmData.error){
+              addMessageToList(props.setMessages, "I'm sorry, there was an error processing your request. Please try again", "assistant");
+              return;
             }
 
-            // book tickets + purchase tickets
+            // checking if event exists; if it does confirm booking with the user
+            const eventData = await getEventByName(llmData.event_name);
+            if(!eventData || eventData.error){
+              addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
+              return;
+            }
+            else{
+              const confirmation = window.confirm(`Would you like to book ${llmData.ticket_amount} ticket(s) for "${eventData.name}" on ${new Date(eventData.date).toLocaleString()}?`);
+              console.log(eventData);
+              if(confirmation){
+
+                // booking confirmed; purchase tickets through client-service and store booking in shared-db
+
+                addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
+                return;
+              }
+              else{
+                addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
+              }
+            }
           }
           else if(event.key === "Enter" && event.shiftKey !== true){
             event.preventDefault();
