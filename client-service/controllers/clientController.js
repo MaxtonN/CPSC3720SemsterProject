@@ -111,4 +111,28 @@ const getBookings = async (req, res) => {
     }
 }
 
-module.exports = { getEvents, purchaseTicket, addBooking, getBookings };
+
+/* 
+ * Gets all events that match the provided name from the shared-db database
+ * 
+ * returns: json object, every row in the events table that match the given name
+ */
+const getEventByName = async (req, res) => {
+    if(!req || !req.params || !req.params.name) {
+        await res.status(400).send('Bad Request: No event name provided');
+        return;
+    }
+
+    try{
+        const response = await RetrieventEventRowsByName(req.params.name);
+        if(response){
+            res.status(200).json(response);
+        }
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json("Internal Server Error: Unknown");
+    }
+}
+
+module.exports = { getEvents, purchaseTicket, addBooking, getBookings, getEventByName };

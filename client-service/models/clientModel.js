@@ -30,6 +30,22 @@ const RetrieveEventRowByID = async (eventId) => {
 
 
 /*
+ * retrievens all events in the shared database with the given name
+ *
+ * eventName -> string, name of the event to search for
+ * 
+ * return: list, list of event objects with the given name, empty list if none found
+ */
+const RetrieveEventRowsByName = async (eventName) => {
+    const database = new Database(databaseFilePath);
+    const statement = database.prepare("SELECT * FROM events WHERE name = ?"); // get row with matching name
+    const rows = statement.all(eventName);
+    database.close();
+
+    return rows;
+}
+
+/*
  * getEvents retrieves and returns the rows from the events table in the shared database (database.sqlite)
  * 
  * return:
@@ -121,4 +137,4 @@ const RetrieveBookingRows = async () => {
     return rows;
 }
 
-module.exports = { RetrieveEventRowByID, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows };
+module.exports = { RetrieveEventRowByID, RetrieveEventRowsByName, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows };

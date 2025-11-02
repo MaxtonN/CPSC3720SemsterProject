@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getEvents, purchaseTicket, addBooking, getBookings } = require('../controllers/clientController');
+const { getEvents, purchaseTicket, addBooking, getBookings, getEventByName } = require('../controllers/clientController');
 
 // endpoints
 router.get('/events', getEvents);
