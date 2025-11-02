@@ -184,6 +184,16 @@ const getEvents = async (setEvents) =>{
   }
 }
 
+// gets speech-to-text transcription from audio input with SpeechRecognition API
+const getSpeechToText = async (audio) =>{
+  return;
+}
+
+// get text-to-speech audio from txt with Speech Synthesis API
+const getTextToSpeech = async (text) =>{
+  return;
+}
+
 
 ////////////////////
 // EVENT HANDLERS //
