@@ -12,7 +12,16 @@ import "./App.css";
 // API CALLS //
 ///////////////
 
-// sends the llm-driven-booking service the user message and returns the llm response
+/* Sends the llm-driven-booking service the user message and returns the llm response
+ *
+ * userMessage --> string, the message from the user to be sent to the llm-driven-booking service
+ *
+ * returns --> JSON object containing the llm response with the following structure:
+ *  - intent: string, the intent of the user (book)
+ *  - event_name: string, the name of the event
+ *  - ticket_amount: integer, the number of tickets to book
+ * if the message could not be processed, returns a JSON object with an "error" key
+ */
 const sendLLMMessage = async (userMessage) => {
   try {
     const response = await fetch("http://localhost:8080/api/llm/parse", {
@@ -32,7 +41,17 @@ const sendLLMMessage = async (userMessage) => {
   }
 };
 
-// retrieves event information by name from client-service
+/* Retrieves event information by name from client-service
+ *
+ * eventName --> string, the name of the event to retrieve
+ * 
+ * returns --> JSON object containing the event information with the following structure:
+ *  - id: integer, the unique ID of the event
+ *  - name: string, the name of the event
+ *  - date: string, the date of the event
+ *  - available_tickets: integer, the number of available tickets for the event
+ * If the event could not be found, returns a JSON object with an "error" key
+ */
 const getEventByName = async (eventName) => {
   try{
     const response = await fetch(`http://localhost:6001/api/events/name/${encodeURIComponent(eventName)}`, {
@@ -50,11 +69,15 @@ const getEventByName = async (eventName) => {
   }
 };
 
-// retrieves events based on query parameters from client-service
-// supported query key-value pairs:
-//  available_tickets : integer (searches for events with more tickets than given integer)
-//  before: date (searches for events before given date)
-//  after: date (searches for events after given date)
+/* Retrieves events from client-service based on query parameters
+ *
+ * queryParams --> object, key-value pairs representing query parameters. Supported keys:
+ *  - available_tickets: integer (searches for events with more tickets than given integer)
+ *  - before: date (searches for events before given date)
+ *  - after: date (searches for events after given date)
+ * 
+ * returns --> JSON object containing the events matching the query parameters. If query fails, returns a JSON object with an "error" key
+ */
 const getEventsQuery = async (queryParams) => {
   try{
     const response = await fetch(`http://localhost:6001/api/events/query?${new URLSearchParams(queryParams)}`, {
@@ -70,31 +93,14 @@ const getEventsQuery = async (queryParams) => {
   }
 }
 
-// adds a message to the message list with the given role; will update all components using the messages state
-// will also vocalize assistant messages using text-to-speech
-const addMessageToList = (setMessages, message, role) => {
-  
-  if(role == "assistant")
-  {
-    getTextToSpeech(message);
-  }
-  
-  setMessages((prevMessages) => {
-    const order = prevMessages.items.length;
-    return {
-      items: [
-        ...prevMessages.items,
-        {
-          message: message,
-          role: role,
-          order: order
-        }
-      ]
-    };
-  });
-};
-
-// purchases a given amount of tickets for an event through the client-service, does not check if tickets are available
+/* Purchases tickets for a given event through client-service. Will also update ticket count locall after purchase
+ *
+ * id --> integer, the unique ID of the event
+ * ticket_amount --> integer, the number of tickets to purchase
+ * setEvents --> function, React state setter function for events
+ *
+ * returns --> JSON object containing the SQL response from client-service. If purchase fails, returns a JSON object with an "error" key. If purchase is successful, returns JSON object with success message.
+ */
 const purchaseTickets = async (id, ticket_amount, setEvents) => {
   try{
     const response = await fetch(`http://localhost:6001/api/events/${id}/purchase`, {
@@ -161,7 +167,13 @@ const buyTicket = async (id, setEvents) => {
   }
 };
 
-// stores booking information in shared-db through booking-service
+/* Stores booking information booking table through client-service
+ * 
+ * event_name --> string, the name of the event being booked
+ * ticket_count --> integer, the number of tickets being booked
+ * 
+ * returns --> JSON object containing the SQL response from client-service. If storing fails, returns a JSON object with an "error" key. If successful, returns JSON object response from SQL operation.
+ */
 const storeBooking = async (event_name, ticket_count) => {
   try{
     const response = await fetch("http://localhost:6001/api/book", {
@@ -178,7 +190,10 @@ const storeBooking = async (event_name, ticket_count) => {
   }
 };
 
-// gets all of the Events from the client-service
+/* gets all of the Events from the client-service. Stores in events with setEvents setter
+ *
+ * setEvents --> function, React state setter function for events
+ */
 const getEvents = async (setEvents) =>{
   try{
     fetch("http://localhost:6001/api/events") // Client service endpoint
@@ -192,7 +207,36 @@ const getEvents = async (setEvents) =>{
 };
 
 
-// plays a short beep sound; frequency is an integer in hertz, determines the pitch of the beep
+/* Get text-to-speech audio from text using the Speech Synthesis API. Plays audio directly in the browser.
+ *
+ * text --> string, the text to be converted to speech
+ *
+ * returns --> nothing
+*/
+const getTextToSpeech = async (text) =>{
+  const utternace = new SpeechSynthesisUtterance(text);
+  if(!utternace){
+    console.error("Speech Synthesis API not supported in this browser.");
+    addMessageToList("I'm sorry, your browser does not support the Speech Synthesis API. Please use a different browser or read the message yourself.", "assistant");
+    return;
+  }
+  utternace.lang = 'en-US';
+  utternace.rate = 1;
+  utternace.pitch = 1;
+  utternace.value = 1;
+
+  window.speechSynthesis.speak(utternace);
+  return;
+};
+
+///////////////////////
+/// HELPER FUNCTIONS //
+///////////////////////
+
+/* plays a short beep sound; 
+ * 
+ * frequency --> integer, determines the frequency in hertz of the beep
+ */
 const playSound = (frequency) => {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if(!audioCtx){
@@ -223,23 +267,37 @@ const playEndingSound = () => {
   playSound(500);
 };
 
-// get text-to-speech audio from txt with Speech Synthesis API
-const getTextToSpeech = async (text) =>{
-  const utternace = new SpeechSynthesisUtterance(text);
-  if(!utternace){
-    console.error("Speech Synthesis API not supported in this browser.");
-    addMessageToList("I'm sorry, your browser does not support the Speech Synthesis API. Please use a different browser or read the message yourself.", "assistant");
-    return;
+// adds a message to the message list with the given role; will update all components using the messages state
+// will also vocalize assistant messages using text-to-speech
+/* Adds a message to the chat bot message list and vocalizes assistant messages with API call.
+ *
+ * setMessages --> function, React state setter function for messages
+ * message --> string, the message to be added
+ * role --> string, the role of the message sender ("user" or "assistant")
+ *
+ * returns --> nothing
+ */
+const addMessageToList = (setMessages, message, role) => {
+  
+  if(role == "assistant")
+  {
+    getTextToSpeech(message);
   }
-  utternace.lang = 'en-US';
-  utternace.rate = 1;
-  utternace.pitch = 1;
-  utternace.value = 1;
-
-  window.speechSynthesis.speak(utternace);
-  return;
+  
+  setMessages((prevMessages) => {
+    const order = prevMessages.items.length;
+    return {
+      items: [
+        ...prevMessages.items,
+        {
+          message: message,
+          role: role,
+          order: order
+        }
+      ]
+    };
+  });
 };
-
 
 ////////////////////
 // EVENT HANDLERS //
