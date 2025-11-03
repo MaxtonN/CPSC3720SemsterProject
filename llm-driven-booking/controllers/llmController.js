@@ -92,7 +92,7 @@ const parseText = async (req, res) => {
             counter = counter - 1;
         }
 
-        if(!parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name){
+        if(!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name){
             console.log("Message could not be parsed by llm");
         }
         else{
