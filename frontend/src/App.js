@@ -303,7 +303,13 @@ const addMessageToList = (setMessages, message, role) => {
 // EVENT HANDLERS //
 ////////////////////
 
-// handles user input in the chat text areas; executes on key press
+/* Handles user input in the chat text area; executes on key press. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
+ *
+ * event --> object, the key press event
+ * props --> object, the component props. Contains setMessages and setEvents functions.
+ *
+ * returns --> nothing
+ */
 const handleTextAreaKeyDown = async (event, props) =>{
   if(event.key === "Enter" && event.shiftKey !== true && event.target.value !== ""){
     event.preventDefault();
@@ -372,7 +378,12 @@ const handleTextAreaKeyDown = async (event, props) =>{
   }
 }
 
-// handles user input in the chat text area; executes on send button click
+/* Handles user input in the chat text area; executes on SendButton click. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
+ *
+ * props --> object, the component props. Contains setMessages and setEvents functions.
+ *
+ * returns --> nothing
+ */
 const handleSendButtonClick = async (props) => {
   // saving to messages, clearing text area
   const textarea = document.getElementById("ChatBotTextArea-textarea");
@@ -435,7 +446,17 @@ const handleSendButtonClick = async (props) => {
   addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
 };
 
-// handles user input in the chat text area; executes on voice button click
+/* Handles voice input in the chat text area; executes on VoiceButton click. Communicates with Speech Recognition API to transcribe user speech to text. 
+ *
+ * props --> object, the component props. Contains setMessages function.
+ * recordingVoice --> boolean, whether the voice input is currently being recorded.
+ * setRecordingVoice --> function, the state setter for recordingVoice.
+ * transcript --> string, the current transcript of the voice input.
+ * setTranscript --> function, the state setter for transcript.
+ * transcriptRef --> object, a ref to the current transcript. Allows access to the latest transcript in event handlers.
+ *
+ * returns --> nothing
+ */
 const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef) => {
   // if already recording, stop
   if(recordingVoice && window.__speechRecognitionInstance){
