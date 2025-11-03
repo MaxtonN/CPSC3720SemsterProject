@@ -332,15 +332,10 @@ const handleSendButtonClick = async (props) => {
 };
 
 // handles user input in the chat text area; executes on voice button click
-const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice) => {
-  // should the button press start or stop recording?
-  if(!recordingVoice){
-    setRecordingVoice(true);
-  }
-  else if(recordingVoice && window.__speechRecognitionInstance){
+const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef) => {
+  // if already recording, stop
+  if(recordingVoice && window.__speechRecognitionInstance){
     window.__speechRecognitionInstance.stop();
-    setRecordingVoice(false);
-    delete window.__speechRecognitionInstance;
     return;
   }
 
@@ -357,32 +352,46 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice) 
   recognition.lang = 'en-US';
   recognition.interimResults = true;
   recognition.continuous = false;
-  recognition.start();
   window.__speechRecognitionInstance = recognition;
 
+
   recognition.onresult = (event) => {
-    const transcript = Array.from(event.results)
+    const newTranscript = Array.from(event.results)
       .map(result => result[0].transcript)
       .join('');
-    console.log("Transcript: ", transcript);
-    addMessageToList(props.setMessages, transcript, "user");
-    
-    setRecordingVoice(false);
-    recognition.stop();
+
+    setTranscript(newTranscript);
+    transcriptRef.current = newTranscript;
+
+    // updating text area with interim transcript
+    const textarea = document.getElementById("ChatBotTextArea-textarea");
+    textarea.value = transcriptRef.current;
   };
 
   recognition.onerror = (event) =>{
     console.error("Speech recognition error: ", event.error);
-
+    addMessageToList(props.setMessages, "I'm sorry, there was an error with speech recognition. Please try again.", "assistant");
     setRecordingVoice(false);
     delete window.__speechRecognitionInstance;
   };
   
   recognition.onend = () => {
+    // handling Speech recognition object cleanup
     console.log("Speech recognition ended.");
+    console.log("Final transcript: ", transcriptRef.current);
     setRecordingVoice(false);
     delete window.__speechRecognitionInstance;
-  }
+
+    // updating text area with transcript
+    const textarea = document.getElementById("ChatBotTextArea-textarea");
+    textarea.value = transcriptRef.current;
+    setTranscript("");
+    transcriptRef.current = "";
+  };
+  
+  
+  setRecordingVoice(true);
+  recognition.start();
 }
 
 //////////////////////
@@ -434,12 +443,16 @@ function MessageList({messages}){
 // chat bot text area for messaging panel
 function ChatBotTextArea(props){
   const [recordingVoice, setRecordingVoice] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const transcriptRef = React.useRef("");
+
+  useEffect(() => { transcriptRef.current = transcript }, [transcript]);
 
   return (
     <div id="ChatBotTextArea">
       <textarea id="ChatBotTextArea-textarea" onKeyDown={ (event) => {handleTextAreaKeyDown(event, props)}} placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
-        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props, recordingVoice, setRecordingVoice)}}>Voice</div>
+        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef)}}>Voice</div>
         <div id = "ChatBotTextAreaSendButton" onClick={()=>{ handleSendButtonClick(props)}}>Send</div>
       </div>
     </div>
