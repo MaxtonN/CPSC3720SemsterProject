@@ -526,7 +526,12 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, 
 // REACT COMPONENTS //
 //////////////////////
 
-// button to open booking assistant chat bot messaging panel
+/* Button to open the booking assistant chat bot messaging panel.
+ *
+ * props --> object, the component props. Contains setShowAssistant setter function.
+ * 
+ * returns --> JSX element representing the booking assistant button.
+ */
 function BookingAssistantButton(props){
   return (
     <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
@@ -534,7 +539,12 @@ function BookingAssistantButton(props){
   );
 }
 
-// individual message component in the chat bot message list
+/* Renders an individual message in the chat bot message list.
+ *
+ * props --> object, the component props. Contains message string and role string ("user" or "assistant").
+ *
+ * returns --> JSX element representing the message.
+ */
 function Message(props){
   if(props.role === "user")
     return (<div className="Message-user">{props.message}</div>);
@@ -542,7 +552,17 @@ function Message(props){
     return (<div className="Message-assistant">{props.message}</div>);
 }
 
-// list of messages in the chat bot messaging panel
+/* Renders the list of messages in the chat bot messaging panel. Updates the scroll position to the bottom when a new message is added.
+ *
+ * messages --> object, the messages state containing an array of message objects with structure:
+ *   {
+ *     message: string, the message content
+ *     role: string, either "user" or "assistant"
+ *     order: number, the order of the message in the list
+ *   }
+ * 
+ * returns --> JSX element representing the message list.
+ */
 function MessageList({messages}){
 
   // scrolls to the bottom of the message list when a new message is added
@@ -568,7 +588,12 @@ function MessageList({messages}){
   )
 }
 
-// chat bot text area for messaging panel
+/* Text area for user input in the chat bot messaging panel. Contains Voice and Send buttons. Sets up state for voice recording and transcript management.
+ *
+ * props --> object, the component props. Contains setMessages and setEvents functions.
+ * 
+ * returns --> JSX element representing the chat bot text area.
+ */
 function ChatBotTextArea(props){
   const [recordingVoice, setRecordingVoice] = useState(false);
   const [transcript, setTranscript] = useState("");
@@ -587,7 +612,12 @@ function ChatBotTextArea(props){
   )
 }
 
-// pannel for the booking assistnant chat
+/* Pannel for the booking assistant chat bot. Contains header with title and exit button, message list, and chat bot text area. Sets up state for messages between user and assistant.
+ *
+ * props --> object, the component props. Contains setShowAssistant and setEvents functions.
+ * 
+ * returns --> JSX element representing the booking assistant chat bot pannel.
+ */
 function BookingAssistantChat(props){
 
   // stores messages between chat bot and user
@@ -618,11 +648,12 @@ function BookingAssistantChat(props){
 }
 
 
+/* Main application component. Displays Clemson campus events and includes accessibility features to assist visually impaired users. Users can use tab and enter keys to navigate the site and purchase tickets.
+ * 
+ * returns --> JSX element representing the main application.
+ */
 function App() {
-  // stores data from the backend
   const [events, setEvents] = useState([]);
-  
-  // false -> show button; true -> show chatbot
   const [showAssistant, setShowAssistant] = useState(false);
 
   // fetches all event rows on startup
