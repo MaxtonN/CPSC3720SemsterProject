@@ -30,6 +30,22 @@ const RetrieveEventRowByID = async (eventId) => {
 
 
 /*
+ * retrievens all events in the shared database with the given name
+ *
+ * eventName -> string, name of the event to search for
+ * 
+ * return: list, list of event objects with the given name, empty list if none found
+ */
+const RetrieveEventRowsByName = async (eventName) => {
+    const database = new Database(databaseFilePath);
+    const statement = database.prepare("SELECT * FROM events WHERE name = ?"); // get row with matching name
+    const rows = statement.all(eventName);
+    database.close();
+
+    return rows;
+}
+
+/*
  * getEvents retrieves and returns the rows from the events table in the shared database (database.sqlite)
  * 
  * return:
@@ -45,22 +61,37 @@ const RetrieveEventRows = async () => {
     return rows;
 };
 
-// decrement event ticket count, count should always be one, assumes a non-null eventID, returns a statusNumber and message
+/*
+ * retrieves all events matching the given query parameters
+ * 
+ * availableTickets -> boolean, if true, only events where available_tickets > 0 are returned
+ * 
+ * return: json object, list of all events matching the query parameters
+ */
+const RetrieveEventRowsQuery = async (query) => {
+    const database = new Database(databaseFilePath);
+    const statement = database.prepare(`SELECT * FROM events WHERE ${query}`);
+    const rows = statement.all();
+    database.close();
+
+    return rows;
+}
 
 /*
- * decrementTickets reduces the amount 'available_tickets' refered to by the eventID by one. 
+ * decrementTickets reduces the amount 'available_tickets' refered to by the eventID by the given amount.
  *
  * eventId -> int, must already exist in the table, must not be null, event refered to must not be sold out
+ * amount -> int, amount to decrement available_tickets by, must be > 0
  *
  * return: object, returns the result of SQL script execution
  * 
  */
-const DecrementAvailableTickets = async (eventId) => {   
+const DecreaseAvailableTickets = async (eventId, amount) => {   
     // lock down the database while making changes to prevent race conditions and corruption
     const database = new Database(databaseFilePath);
     const info = database.exec(`
         BEGIN EXCLUSIVE; 
-        UPDATE events SET available_tickets = available_tickets - 1 WHERE id = ${eventId} AND available_tickets >= 1; 
+        UPDATE events SET available_tickets = available_tickets - ${amount} WHERE id = ${eventId} AND available_tickets >= ${amount}; 
         COMMIT;`
     );
     database.close();
@@ -80,8 +111,8 @@ const DecrementAvailableTickets = async (eventId) => {
  * returns: json object, database reply
  */
 const AddBookingRow = async (booking) => {
-    const database = new Database(dbFilepath);
-
+    const database = new Database(databaseFilePath);
+    
     // allows the user field to be blank
     if(booking.user){
         // lock down database while making changes to prevent race conditions
@@ -121,4 +152,4 @@ const RetrieveBookingRows = async () => {
     return rows;
 }
 
-module.exports = { RetrieveEventRowByID, RetrieveEventRows, DecrementAvailableTickets, AddBookingRow, RetrieveBookingRows };
+module.exports = { RetrieveEventRowByID, RetrieveEventRowsByName, RetrieveEventRows, DecreaseAvailableTickets, AddBookingRow, RetrieveBookingRows, RetrieveEventRowsQuery };

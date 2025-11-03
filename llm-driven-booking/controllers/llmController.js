@@ -1,4 +1,5 @@
-const { Parse, Booking, BookingList } = require('../models/llmModel');
+const { Parse } = require('../models/llmModel');
+const WordsToNumbers = require('words-to-numbers');
 
 /*
  * Takes in a message and parses according to predefined keywords and common commands. Accounts for the following commands:
@@ -28,12 +29,18 @@ const keywordParse = (message) => {
         response.intent = "book";
     }
     else{
+        console.log("No valid action verb found", actionVerb);
         return null;
     }
 
     // checking for ticket_amount
-    const ticketAmount = parseInt(wordlist[1]);
-    if(ticketAmount === NaN){
+    let ticketAmount = parseInt(wordlist[1]);
+    if(isNaN(ticketAmount)){
+        ticketAmount = WordsToNumbers.wordsToNumbers(wordlist[1]);
+    }
+
+    if(isNaN(ticketAmount) || ticketAmount <= 0){
+        console.log("No valid ticket amount found");
         return null;
     }
     else{
@@ -78,14 +85,14 @@ const parseText = async (req, res) => {
     try{
         // tries llm parsing a maximum of three times
         let parsedInformation = JSON.parse('{"intent":null, "ticket_amount":null, "event_name":null}');
-        let counter = 3;
+        let counter = 2;
         while((!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name) && counter > 0){
-            //const response = await Parse(req.body.message);
-            //parsedInformation = JSON.parse(response);
+            const response = await Parse(req.body.message);
+            parsedInformation = JSON.parse(response);
             counter = counter - 1;
         }
 
-        if(!parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name){
+        if(!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name){
             console.log("Message could not be parsed by llm");
         }
         else{
