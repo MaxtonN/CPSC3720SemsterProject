@@ -526,7 +526,7 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, 
 // REACT COMPONENTS //
 //////////////////////
 
-/* Button to open the booking assistant chat bot messaging panel.
+/* Button to open the booking assistant chat bot messaging panel. Uses aria-label for accessibility.
  *
  * props --> object, the component props. Contains setShowAssistant setter function.
  * 
@@ -534,7 +534,8 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, 
  */
 function BookingAssistantButton(props){
   return (
-    <div id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)}>
+    <div aria-label="Open booking assistant" role="button" tabIndex="0" id="BookingAssistantButton" onClick={() => props.setShowAssistant(true)} onKeyDown={(event) => { if(event.key === "Enter") props.setShowAssistant(true)}}>
+      <img src="/chat.svg" alt="Booking Assistant" className="chat-icon"/>
     </div>
   );
 }
@@ -589,6 +590,7 @@ function MessageList({messages}){
 }
 
 /* Text area for user input in the chat bot messaging panel. Contains Voice and Send buttons. Sets up state for voice recording and transcript management.
+ * Uses aria-labels for accessibility.
  *
  * props --> object, the component props. Contains setMessages and setEvents functions.
  * 
@@ -603,10 +605,28 @@ function ChatBotTextArea(props){
 
   return (
     <div id="ChatBotTextArea">
-      <textarea id="ChatBotTextArea-textarea" onKeyDown={ (event) => {handleTextAreaKeyDown(event, props)}} placeholder="Enter message here..."></textarea>
+      <textarea aria-label="Chat Bot Text Area" id="ChatBotTextArea-textarea" onKeyDown={ (event) => {handleTextAreaKeyDown(event, props)}} placeholder="Enter message here..."></textarea>
       <div id="ChatBotTextAreaButtons">
-        <div id = "ChatBotTextAreaVoiceButton" onClick={() => { handleVoiceButtonClick(props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef)}}>Voice</div>
-        <div id = "ChatBotTextAreaSendButton" onClick={()=>{ handleSendButtonClick(props)}}>Send</div>
+        <div 
+          role="button" 
+          tabIndex="0" 
+          id = "ChatBotTextAreaVoiceButton" 
+          onClick={() => { handleVoiceButtonClick(props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef)}}
+          onKeyDown={(event) => { if(event.key === "Enter") handleVoiceButtonClick(props, recordingVoice, setRecordingVoice, transcript, setTranscript, transcriptRef)}}
+          aria-label="Start Recording Voice Button"
+        >
+          <img src="/mic.svg" alt="Voice" className="mic-icon"/>
+        </div>
+        <div 
+          role="button" 
+          tabIndex="0" 
+          id = "ChatBotTextAreaSendButton" 
+          onClick={()=>{ handleSendButtonClick(props)}}
+          onKeyDown={(event) => { if(event.key === "Enter") handleSendButtonClick(props)}}
+          aria-label="Send Message Button"
+        >
+          <img src="/send.svg" alt="Send" className="send-icon"/>
+        </div>
       </div>
     </div>
   )
@@ -637,7 +657,16 @@ function BookingAssistantChat(props){
     <div id="BookingAssistantChat">
       <div id="BookingAssistantChatHeader">
         <div id="BookingAssistantChatHeaderTitle">Booking Assistant</div>
-        <div id="BookingAssistantChatHeaderExit" onClick={()=> props.setShowAssistant(false)}>X</div>
+        <div 
+          role="button" 
+          tabIndex="0" 
+          id="BookingAssistantChatHeaderExit" 
+          onClick={()=> props.setShowAssistant(false)}
+          onKeyDown={(event) => { if(event.key === "Enter") props.setShowAssistant(false)}}
+          aria-label="Close Booking Assistant Chat Panel"
+        >
+          <img src="/exit.svg" alt="Close" className="close-icon"/>
+        </div>
       </div>
       <div id="BookingAssistantChatPanel">
         <MessageList messages={messages}/>
