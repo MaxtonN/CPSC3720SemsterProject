@@ -279,7 +279,7 @@ const playEndingSound = () => {
  */
 const addMessageToList = (setMessages, message, role) => {
   
-  if(role == "assistant")
+  if(role === "assistant")
   {
     getTextToSpeech(message);
   }
