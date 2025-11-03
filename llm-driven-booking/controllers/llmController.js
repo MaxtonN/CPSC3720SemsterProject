@@ -83,7 +83,7 @@ const parseText = async (req, res) => {
     }
 
     try{
-        // tries llm parsing a maximum of three times
+        // tries llm parsing a maximum of two times to improve reliability
         let parsedInformation = JSON.parse('{"intent":null, "ticket_amount":null, "event_name":null}');
         let counter = 2;
         while((!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name) && counter > 0){
