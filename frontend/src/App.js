@@ -184,10 +184,42 @@ const getEvents = async (setEvents) =>{
   }
 };
 
+
+// plays a short beep sound; 
+const playSound = (frequency) => {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(!audioCtx){
+    console.error("Web Audio API not supported in this browser.");
+    return;
+  }
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.type = "sine";
+  oscillator.frequency.value = frequency; // frequency in hertz
+  gainNode.gain.value = 0.5;
+  oscillator.start();
+  setTimeout(() => {
+    oscillator.stop();
+    audioCtx.close();
+  }, 100);
+};
+
+// plays a starting beep sound
+const playStartingSound = () => {
+  playSound(1000);
+};
+
+// plays a confirmation beep sound
+const playEndingSound = () => {
+  playSound(500);
+};
+
 // get text-to-speech audio from txt with Speech Synthesis API
 const getTextToSpeech = async (text) =>{
   return;
-}
+};
 
 
 ////////////////////
@@ -334,6 +366,8 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, 
     return;
   }
 
+  playStartingSound();
+
   // check for browser support
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){
@@ -376,6 +410,7 @@ const handleVoiceButtonClick = async (props, recordingVoice, setRecordingVoice, 
     console.log("Final transcript: ", transcriptRef.current);
     setRecordingVoice(false);
     delete window.__speechRecognitionInstance;
+    playEndingSound();
 
     // updating text area with transcript
     const textarea = document.getElementById("ChatBotTextArea-textarea");
