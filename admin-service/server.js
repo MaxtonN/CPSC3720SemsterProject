@@ -12,4 +12,9 @@ app.use((req, res) => {
 });
 
 const PORT = 5001;
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+// Only starts the server if not in testing mode
+if (require.main === module) {
+    app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+}
+
+module.exports = app;

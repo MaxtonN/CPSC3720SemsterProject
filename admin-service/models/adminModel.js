@@ -1,5 +1,8 @@
+const path = require("path");
 const Database = require("better-sqlite3");
-const dbFilePath = "../backend/shared-db/database.sqlite";
+
+// Use absolute path in order to find the database correctly
+const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite");
 
 /*
  * postEvent adds a new event based on given information into the shared
@@ -11,14 +14,30 @@ const dbFilePath = "../backend/shared-db/database.sqlite";
  * return: object, information on database operation
  */
 const postEvent = async (event) => {
-    // lock down the datbase while making changes to prevent race conditions and corruption
-    const database = new Database(dbFilePath);
-    const purchase = database.transaction((event) => {
-        const statement = database.prepare("INSERT INTO events (name, date, available_tickets) VALUES (?, ?, ?)");
-        statement.run(event.name, event.date, event.available_tickets);
-    })
-    purchase(event);
-    database.close();
+    console.log("Attempting to post the event bro:", event); // debugger
+
+    try {
+        // Open database connection
+        const database = new Database(dbFilePath);
+
+        // Wrap insert in transaction
+        const purchase = database.transaction((event) => {
+            const statement = database.prepare(
+                "INSERT INTO events (name, date, available_tickets) VALUES (?, ?, ?)"
+            );
+            statement.run(event.name, event.date, event.available_tickets);
+        });
+
+        // Execute transaction
+        purchase(event);
+
+        // Close the DB connection
+        database.close();
+        console.log("Event posted successfully!");
+    } catch (error) {
+        console.log("Error posting event:", error);
+        throw error;
+    }
 };
 
 module.exports = { postEvent };

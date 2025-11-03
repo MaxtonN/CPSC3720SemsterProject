@@ -1,7 +1,5 @@
 const { getEvents, postEvent } = require('../models/adminModel');
 
-
-
 /*
  * addEvent takes in an api POST request and creates a new entry in the
  * shared SQLite database based on given data, wrapper for postEvent
