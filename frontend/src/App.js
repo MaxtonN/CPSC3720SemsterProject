@@ -71,7 +71,14 @@ const getEventsQuery = async (queryParams) => {
 }
 
 // adds a message to the message list with the given role; will update all components using the messages state
+// will also vocalize assistant messages using text-to-speech
 const addMessageToList = (setMessages, message, role) => {
+  
+  if(role == "assistant")
+  {
+    getTextToSpeech(message);
+  }
+  
   setMessages((prevMessages) => {
     const order = prevMessages.items.length;
     return {
@@ -185,7 +192,7 @@ const getEvents = async (setEvents) =>{
 };
 
 
-// plays a short beep sound; 
+// plays a short beep sound; frequency is an integer in hertz, determines the pitch of the beep
 const playSound = (frequency) => {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if(!audioCtx){
@@ -218,6 +225,18 @@ const playEndingSound = () => {
 
 // get text-to-speech audio from txt with Speech Synthesis API
 const getTextToSpeech = async (text) =>{
+  const utternace = new SpeechSynthesisUtterance(text);
+  if(!utternace){
+    console.error("Speech Synthesis API not supported in this browser.");
+    addMessageToList("I'm sorry, your browser does not support the Speech Synthesis API. Please use a different browser or read the message yourself.", "assistant");
+    return;
+  }
+  utternace.lang = 'en-US';
+  utternace.rate = 1;
+  utternace.pitch = 1;
+  utternace.value = 1;
+
+  window.speechSynthesis.speak(utternace);
   return;
 };
 
