@@ -267,8 +267,6 @@ const playEndingSound = () => {
   playSound(500);
 };
 
-// adds a message to the message list with the given role; will update all components using the messages state
-// will also vocalize assistant messages using text-to-speech
 /* Adds a message to the chat bot message list and vocalizes assistant messages with API call.
  *
  * setMessages --> function, React state setter function for messages
@@ -280,9 +278,7 @@ const playEndingSound = () => {
 const addMessageToList = (setMessages, message, role) => {
   
   if(role === "assistant")
-  {
     getTextToSpeech(message);
-  }
   
   setMessages((prevMessages) => {
     const order = prevMessages.items.length;
@@ -299,97 +295,18 @@ const addMessageToList = (setMessages, message, role) => {
   });
 };
 
-////////////////////
-// EVENT HANDLERS //
-////////////////////
-
-/* Handles user input in the chat text area; executes on key press. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
+/* Handles user input in the chat text area. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
  *
  * event --> object, the key press event
  * props --> object, the component props. Contains setMessages and setEvents functions.
  *
  * returns --> nothing
  */
-const handleTextAreaKeyDown = async (event, props) =>{
-  if(event.key === "Enter" && event.shiftKey !== true && event.target.value !== ""){
-    event.preventDefault();
-
-    // saving to messages, clearing text area
-    const query = event.target.value;
-    addMessageToList(props.setMessages, query, "user");
-    event.target.value = "";
-
-    // handles see events requests
-    if(query.toLowerCase().includes("show me events with available tickets")){
-      const events = await getEventsQuery({available_tickets: 0});
-      if(!events || events.error)
-        addMessageToList(props.setMessages, "I'm sorry, there was an error retrieving events with available tickets. Please try again.", "assistant"); 
-      else
-        addMessageToList(props.setMessages, `Here are the events with available tickets: ${events.map(event => event.name).join(", ")}`, "assistant");
-      return;
-    }
-
-    // sending message to llm-driven-booking
-    const llmData = await sendLLMMessage(query);
-    if(!llmData || llmData.error){
-      addMessageToList(props.setMessages, "I'm sorry, there was an error processing your request. Please try again", "assistant");
-      return;
-    }
-
-    // message validation
-    llmData.event_name = llmData.event_name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // capitalizing event name for search
-    const eventData = await getEventByName(llmData.event_name);
-    if(!eventData || eventData.error){
-      addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
-      return;
-    }
-    else if(eventData.available_tickets < llmData.ticket_amount){
-      addMessageToList(props.setMessages, `I'm sorry, there are only ${eventData.available_tickets} tickets available for "${eventData.name}". Please adjust the ticket amount and try again.`, "assistant");
-      return;
-    }
-
-    // asking for user confirmation
-    const confirmation = window.confirm(`Would you like to book ${llmData.ticket_amount} ticket(s) for "${eventData.name}" on ${new Date(eventData.date).toLocaleString()}?`);
-    if(!confirmation){
-      addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
-      return;
-    }
-    
-
-    // sending purchase to client-service    
-    const purchaseResponse = await purchaseTickets(eventData.id, llmData.ticket_amount, props.setEvents);
-    if(!purchaseResponse || purchaseResponse.error){
-      addMessageToList(props.setMessages, "I'm sorry, there was an error purchasing your tickets. Please try again.", "assistant");
-      return;
-    }
-
-    // sending booking to client-service
-    const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
-    if(!bookingResponse || bookingResponse.error){
-      addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
-      return;
-    }
-
-    // confirmation message to user
-    addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
-  }
-  else if(event.key === "Enter" && event.shiftKey !== true){
-    event.preventDefault();
-  }
-}
-
-/* Handles user input in the chat text area; executes on SendButton click. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
- *
- * props --> object, the component props. Contains setMessages and setEvents functions.
- *
- * returns --> nothing
- */
-const handleSendButtonClick = async (props) => {
+const handleTextArea = async (props) => {
   // saving to messages, clearing text area
-  const textarea = document.getElementById("ChatBotTextArea-textarea");
-  const query = textarea.value;
+  const query = document.getElementById("ChatBotTextArea-textarea").value;
   addMessageToList(props.setMessages, query, "user");
-  textarea.value = "";
+  document.getElementById("ChatBotTextArea-textarea").value = "";
 
   // handles see events requests
   if(query.toLowerCase().includes("show me events with available tickets")){
@@ -402,7 +319,7 @@ const handleSendButtonClick = async (props) => {
   }
 
   // sending message to llm-driven-booking
-  let llmData = await sendLLMMessage(query);
+  const llmData = await sendLLMMessage(query);
   if(!llmData || llmData.error){
     addMessageToList(props.setMessages, "I'm sorry, there was an error processing your request. Please try again", "assistant");
     return;
@@ -426,8 +343,9 @@ const handleSendButtonClick = async (props) => {
     addMessageToList(props.setMessages, "No problem! Let me know if there's anything else I can help you with.", "assistant");
     return;
   }
+  
 
-  // sending purchase to client-service
+  // sending purchase to client-service    
   const purchaseResponse = await purchaseTickets(eventData.id, llmData.ticket_amount, props.setEvents);
   if(!purchaseResponse || purchaseResponse.error){
     addMessageToList(props.setMessages, "I'm sorry, there was an error purchasing your tickets. Please try again.", "assistant");
@@ -438,12 +356,43 @@ const handleSendButtonClick = async (props) => {
   const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
   if(!bookingResponse || bookingResponse.error){
     addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
-    console.log(bookingResponse);
     return;
   }
 
   // confirmation message to user
   addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
+};
+
+////////////////////
+// EVENT HANDLERS //
+////////////////////
+
+/* Handles user input in the chat text area; executes on key press. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
+ *
+ * event --> object, the key press event
+ * props --> object, the component props. Contains setMessages and setEvents functions.
+ *
+ * returns --> nothing
+ */
+const handleTextAreaKeyDown = async (event, props) =>{
+  if(event.key === "Enter" && event.shiftKey !== true && event.target.value !== ""){
+    event.preventDefault();
+
+    await handleTextArea(props);
+  }
+  else if(event.key === "Enter" && event.shiftKey !== true){
+    event.preventDefault();
+  }
+}
+
+/* Handles user input in the chat text area; executes on SendButton click. Communicates with llm-driven-booking and client-service APIs to process booking requests and perform validation.
+ *
+ * props --> object, the component props. Contains setMessages and setEvents functions.
+ *
+ * returns --> nothing
+ */
+const handleSendButtonClick = async (props) => {
+  await handleTextArea(props);
 };
 
 /* Handles voice input in the chat text area; executes on VoiceButton click. Communicates with Speech Recognition API to transcribe user speech to text. 
