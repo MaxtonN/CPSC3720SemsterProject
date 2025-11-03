@@ -182,15 +182,7 @@ const getEvents = async (setEvents) =>{
   catch(error){
     console.error("Error fetching events: ", error);
   }
-}
-
-// gets speech-to-text transcription from audio input with Web Speech API
-const getSpeechToText = async (audio) =>{
-
-  
-
-  return;
-}
+};
 
 // get text-to-speech audio from txt with Speech Synthesis API
 const getTextToSpeech = async (text) =>{
@@ -230,6 +222,7 @@ const handleTextAreaKeyDown = async (event, props) =>{
     }
 
     // message validation
+    llmData.event_name = llmData.event_name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // capitalizing event name for search
     const eventData = await getEventByName(llmData.event_name);
     if(!eventData || eventData.error){
       addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
@@ -289,13 +282,14 @@ const handleSendButtonClick = async (props) => {
   }
 
   // sending message to llm-driven-booking
-  const llmData = await sendLLMMessage(query);
+  let llmData = await sendLLMMessage(query);
   if(!llmData || llmData.error){
     addMessageToList(props.setMessages, "I'm sorry, there was an error processing your request. Please try again", "assistant");
     return;
   }
 
   // message validation
+  llmData.event_name = llmData.event_name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '); // capitalizing event name for search
   const eventData = await getEventByName(llmData.event_name);
   if(!eventData || eventData.error){
     addMessageToList(props.setMessages, `I'm sorry, I couldn't find any event named "${llmData.event_name}". Please check the event name and try again.`, "assistant");
@@ -324,11 +318,12 @@ const handleSendButtonClick = async (props) => {
   const bookingResponse = await storeBooking(eventData.name, llmData.ticket_amount);
   if(!bookingResponse || bookingResponse.error){
     addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
+    console.log(bookingResponse);
     return;
   }
 
   // confirmation message to user
-  addMessageToList(props.setMessages, "I'm sorry, there was an error storing your booking information. Please try again.", "assistant");
+  addMessageToList(props.setMessages, `Great! Your ${llmData.ticket_amount} ticket(s) for "${eventData.name}" have been booked successfully.`, "assistant");
 };
 
 // handles user input in the chat text area; executes on voice button click

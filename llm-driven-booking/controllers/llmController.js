@@ -1,4 +1,5 @@
-const { Parse, Booking, BookingList } = require('../models/llmModel');
+const { Parse } = require('../models/llmModel');
+const WordsToNumbers = require('words-to-numbers');
 
 /*
  * Takes in a message and parses according to predefined keywords and common commands. Accounts for the following commands:
@@ -33,7 +34,11 @@ const keywordParse = (message) => {
     }
 
     // checking for ticket_amount
-    const ticketAmount = parseInt(wordlist[1]);
+    let ticketAmount = parseInt(wordlist[1]);
+    if(isNaN(ticketAmount)){
+        ticketAmount = WordsToNumbers.wordsToNumbers(wordlist[1]);
+    }
+
     if(isNaN(ticketAmount) || ticketAmount <= 0){
         console.log("No valid ticket amount found");
         return null;
