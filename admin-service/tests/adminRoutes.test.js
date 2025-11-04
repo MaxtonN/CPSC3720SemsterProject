@@ -22,14 +22,15 @@ beforeAll(() => {
    db.close();
 });
 // ----------------------------------------------------------------------//
-// All the test below check the boundaries of creating valid new event dates
+// All the test below check critical functions like event creation, ticket
+// purchasing, and booking creation
 // The date must be in the future or day of to be valid, correct format (YYYY/MM/DD)
 // The event must contain a date, a name, and available_tickets (integer)
 describe('Admin Microservice API', () => {
   // Date must be valid and in the future or present day
   test('POST /api/admin/events should add a valid event', async () => {
     const event = {
-      name: "Dance Night",
+      name: "Dance Night (test)",
       date: "2025-11-20",
       available_tickets: 50
     };
