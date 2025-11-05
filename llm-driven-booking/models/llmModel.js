@@ -1,7 +1,7 @@
 //import OpenAI from "openai";
 const OpenAI = require("openai");
 // this is really, really bad practice but I'll just put the API_KEY here to save time
-const API_KEY = "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";
+const API_KEY = "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";
 
 /*
  * Communicates with ChatGPT API to parse text and send back the parsed information
@@ -18,7 +18,13 @@ const Parse = async (message) => {
     // llm will respond according to this prompt
     const prompt = `You analyze messages and extract the intention of the user, the event the user is asking about, and the amount of tickets they want to book.
     Respond to every prompt in json with the keys 'intent', 'ticket_amount', and 'event_name'. If it seems like the user wants to buy/purchase/book a ticket 'intent' should be 'book'. If the user does not seem to want to book tickets, return null.
-    'ticket_amount' should be an integer representing the amount of tickets the user wants to book. 'event_name' should be a string representing the name of the event the user wants to book tickets for.`;
+    'ticket_amount' should be an integer representing the amount of tickets the user wants to book. 'event_name' should be a string representing the name of the event the user wants to book tickets for.
+    Do not include any extra information in your response, only the json object. All responses should be in the following format:
+    {
+        "intent": "book",
+        "ticket_amount": 2,
+        "event_name": "Coldplay Concert"
+    }`;
 
     const response = await client.chat.completions.create({
         model: "gpt-4o-mini",

@@ -88,7 +88,13 @@ const parseText = async (req, res) => {
         let counter = 2;
         while((!parsedInformation || !parsedInformation.intent || !parsedInformation.ticket_amount || !parsedInformation.event_name) && counter > 0){
             const response = await Parse(req.body.message);
-            parsedInformation = JSON.parse(response);
+            try{
+                parsedInformation = JSON.parse(response);
+            }
+            catch(error){
+                console.log("Error parsing LLM response:", error);
+                console.log("LLM response was:", response);
+            }
             counter = counter - 1;
         }
 
