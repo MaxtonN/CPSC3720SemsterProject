@@ -2,6 +2,7 @@
 -- Drop table if it exists
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS users;
 
 -- SQL script to initialize the database schema for events
 CREATE TABLE events(
@@ -17,6 +18,13 @@ CREATE TABLE bookings(
     user TEXT DEFAULT "Guest",
     ticket_count INTEGER NOT NULL,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
 );
 
 -- seed events

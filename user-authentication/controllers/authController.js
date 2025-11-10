@@ -1,4 +1,4 @@
-const {AddUser, AuthenticateUser} = require('../models/authModel');
+const {AddUser, AuthenticateUser, DeleteAllRows} = require('../models/authModel');
 const bcryptjs = require('bcryptjs');
 
 /*
@@ -46,4 +46,14 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser };
+const resetDB = async (req, res) => {
+    try {
+        await DeleteAllRows();
+        res.status(200).json({ message: "Database reset successfully" });
+    } catch (error) {
+        console.error("Error resetting database:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+module.exports = { registerUser, loginUser, resetDB };

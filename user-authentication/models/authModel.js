@@ -13,7 +13,7 @@ const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite
  * email -> string, email of the new user
  * password -> string, password of the new user (should be hashed)
  */
-const AddUser = (username, email, password) => {
+const AddUser = async (username, email, password) => {
     const db = new Database(dbFilePath);
     const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
     const result = stmt.run(username, email, password);
@@ -26,7 +26,7 @@ const AddUser = (username, email, password) => {
  * email -> string, email of the user to authenticate
  * password -> string, password of the user to authenticate (should be hashed)
  */
-const AuthenticateUser = (email, password) => {
+const AuthenticateUser = async (email, password) => {
     const db = new Database(dbFilePath);
     const stmt = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?");
     const user = stmt.get(email, password);
@@ -34,4 +34,13 @@ const AuthenticateUser = (email, password) => {
     return user;
 };
 
-module.exports = { AddUser, AuthenticateUser };
+/* * DeleteAllRows deletes all rows from the users table in the shared SQLite database
+ */
+const DeleteAllRows = async () => {
+    const db = new Database(dbFilePath);
+    const stmt = db.prepare("DELETE FROM users");
+    stmt.run();
+    db.close();
+};
+
+module.exports = { AddUser, AuthenticateUser, DeleteAllRows };
