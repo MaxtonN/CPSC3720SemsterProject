@@ -1,4 +1,4 @@
-const {AddUser, AuthenticateUser} = require('../models/userModel');
+const {AddUser, AuthenticateUser} = require('../models/authModel');
 const bcryptjs = require('bcryptjs');
 
 /*
@@ -7,7 +7,12 @@ const bcryptjs = require('bcryptjs');
  */
 const registerUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const username = req.body.username;
+        const email = req.body.email;
+        const password = await bcryptjs.hash(req.body.password, 10);
+        
+        console.log("Hashed password for login:", password);
+
         const user = await AddUser(username, email, password);
         res.status(201).json({ message: "User created successfully", user });
     } catch (error) {
@@ -24,7 +29,11 @@ const registerUser = async (req, res) => {
 */
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        //const { email, password } = req.body;
+        const email = req.body.email;
+        const password = await bcryptjs.hash(req.body.password, 10);
+        console.log("Hashed password for login:", password);
+        
         const user = await AuthenticateUser(email, password);
         if (user) {
             res.status(200).json({ message: "Login successful", user });
