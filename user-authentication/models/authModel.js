@@ -1,10 +1,12 @@
 const path = require("path");
 const Database = require("better-sqlite3");
-
 // Use absolute path in order to find the database correctly
 const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite");
+const bcryptjs = require('bcryptjs');
 
-// cannot store plain text passwords, 
+// Note: For security reasons,
+// cannot store plain text passwords,
+// must hash passwords before storing
 
 
 /* * AddUser adds a new user based on given information into the shared
@@ -15,9 +17,13 @@ const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite
  */
 const AddUser = async (username, email, password) => {
     const db = new Database(dbFilePath);
-    const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-    const result = stmt.run(username, email, password);
+    const transation = db.transaction((username, email, password) => {
+        const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        stmt.run(username, email, password);
+    });
+    const result = transation(username, email, password);
     db.close();
+    
     return result;
 };
 
@@ -26,10 +32,10 @@ const AddUser = async (username, email, password) => {
  * email -> string, email of the user to authenticate
  * password -> string, password of the user to authenticate (should be hashed)
  */
-const AuthenticateUser = async (email, password) => {
+const AuthenticateUser = async (email) => {
     const db = new Database(dbFilePath);
-    const stmt = db.prepare("SELECT * FROM users WHERE email = ? AND password = ?");
-    const user = stmt.get(email, password);
+    const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
+    const user = stmt.get(email);
     db.close();
     return user;
 };
