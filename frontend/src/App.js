@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from "react";
 import "./App.css";
-
+import { Link, useNavigate } from "react-router-dom"; // for login route
 
 ///////////////
 // API CALLS //
@@ -633,7 +633,7 @@ function BookingAssistantChat(props){
 function App() {
   const [events, setEvents] = useState([]);
   const [showAssistant, setShowAssistant] = useState(false);
-
+  const navigate = useNavigate();  // for navigation
   // fetches all event rows on startup
   useEffect(() => {
     getEvents(setEvents);
@@ -668,6 +668,24 @@ function App() {
           className="ClemsonLogo"
         />
         <h1 id="pageTitle">Clemson Campus Events</h1>
+      
+        <div style={{ position: "absolute", top: 20, left: 30 }}>
+          {localStorage.getItem("token") ? (
+            <button
+              className="logoutButton"
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/login");
+             }}
+            >
+              Logout
+            </button>
+          ) : (
+            <Link to="/login">
+              <button className="loginButton">Login</button>
+            </Link>
+        )}
+        </div>
       </header>
 
       {/* event listings section */}
