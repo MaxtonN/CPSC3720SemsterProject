@@ -668,24 +668,32 @@ function App() {
           className="ClemsonLogo"
         />
         <h1 id="pageTitle">Clemson Campus Events</h1>
-      
-        <div style={{ position: "absolute", top: 20, left: 30 }}>
-          {localStorage.getItem("token") ? (
-            <button
-              className="logoutButton"
-              onClick={() => {
-                localStorage.removeItem("token");
-                navigate("/login");
-             }}
-            >
-              Logout
-            </button>
-          ) : (
-            <Link to="/login">
-              <button className="loginButton">Login</button>
-            </Link>
-        )}
-        </div>
+        
+<div style={{ position: "absolute", top: 20, left: 30, display: "flex", alignItems: "center", gap: "10px" }}>
+  {localStorage.getItem("token") ? (
+    <>
+      <p style={{ margin: 0, color: "white", fontSize: "0.9rem" }}>
+        Logged in as <strong>{localStorage.getItem("userEmail")}</strong>
+      </p>
+      <button
+        className="logoutButton"
+        onClick={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userEmail");
+          navigate("/login");
+        }}
+      >
+        Logout
+      </button>
+    </>
+  ) : (
+    <Link to="/login">
+      <button className="loginButton">Login</button>
+    </Link>
+  )}
+</div>
+
+
       </header>
 
       {/* event listings section */}

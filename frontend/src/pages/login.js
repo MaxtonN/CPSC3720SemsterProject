@@ -29,16 +29,25 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/"); // redirect to events page
-      } else {
-        setMessage(data.error || "Invalid credentials");
+         const token = data.token;
+         localStorage.setItem("token", token);
+
+         // Decode the JWT payload to extract the user’s email
+         const payload = JSON.parse(atob(token.split(".")[1]));
+         localStorage.setItem("userEmail", payload.email);
+
+         navigate("/"); // redirect to events page
+      } 
+      else {
+         setMessage(data.error || "Invalid credentials");
       }
-    } catch (err) {
-      console.error(err);
-      setMessage("Server error. Try again later.");
-    }
-  };
+
+    } 
+      catch (err) {
+         console.error(err);
+         setMessage("Server error. Try again later.");
+      }
+   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "80px" }}>
