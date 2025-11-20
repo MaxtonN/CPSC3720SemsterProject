@@ -10,9 +10,6 @@ beforeAll(() => {
    // reinitialize database before tests
    const dbPath = '../../backend/shared-db/database.sqlite';
    const sqlPath = '../../backend/shared-db/init.sql';
-   // prints out paths for debugging and file location is right
-   console.log("DB Path:", __dirname + "/" + dbPath);
-   console.log("SQL Path:", __dirname + "/" + sqlPath);
 
    // initialize the database
    const db = new Database(__dirname + "/" + dbPath);
@@ -21,6 +18,8 @@ beforeAll(() => {
    db.exec(sql);
    db.close();
 });
+
+
 // ----------------------------------------------------------------------//
 // All the test below check critical functions like event creation, ticket
 // purchasing, and booking creation
@@ -34,13 +33,12 @@ describe('Admin Microservice API', () => {
       date: "2025-11-20",
       available_tickets: 50
     };
-   // Sends a POSRT request to the /api/admin/events endpoint with the event data
+
+   // Sends a POST request to the /api/admin/events endpoint with the event data
    const res = await request(app)
       .post('/api/admin/events')
       .send(event);
-    // Debugging 
-    console.log("Response:", res.statusCode, res.text); // debug print
-    // server should send back a 200 status code and success message
+
     expect(res.statusCode).toBe(200);
     expect(res.text).toMatch(/Success/i);
   });
@@ -154,5 +152,4 @@ describe('Admin Microservice API', () => {
     const res2 = await request(app).post('/api/admin/events').send(event);
     expect(res2.statusCode).toBeGreaterThanOrEqual(400);
   });
-
 });
