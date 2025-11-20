@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Link, useNavigate } from "react-router-dom"; // for login route
+import jwtDecode from "jwt-decode";
 
 ///////////////
 // API CALLS //
@@ -669,29 +670,48 @@ function App() {
         />
         <h1 id="pageTitle">Clemson Campus Events</h1>
         
-<div style={{ position: "absolute", top: 20, left: 30, display: "flex", alignItems: "center", gap: "10px" }}>
-  {localStorage.getItem("token") ? (
-    <>
-      <p style={{ margin: 0, color: "white", fontSize: "0.9rem" }}>
-        Logged in as <strong>{localStorage.getItem("userEmail")}</strong>
-      </p>
-      <button
-        className="logoutButton"
-        onClick={() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userEmail");
-          navigate("/login");
-        }}
-      >
-        Logout
-      </button>
-    </>
-  ) : (
-    <Link to="/login">
-      <button className="loginButton">Login</button>
-    </Link>
-  )}
+<div
+  style={{
+    position: "absolute",
+    top: 20,
+    left: 30,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  }}
+>
+  {(() => {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (token && userEmail) {
+      return (
+        <>
+          <p style={{ margin: 0, color: "white", fontSize: "0.9rem" }}>
+            Logged in as <strong>{userEmail}</strong>
+          </p>
+          <button
+            className="logoutButton"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("userEmail");
+              navigate("/login");
+            }}
+          >
+            Logout
+          </button>
+        </>
+      );
+    } else {
+      return (
+        <Link to="/login">
+          <button className="loginButton">Login</button>
+        </Link>
+      );
+    }
+  })()}
 </div>
+
 
 
       </header>

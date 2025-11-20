@@ -1,14 +1,7 @@
-/**
- * Login Page for TigerTix Sprint 3
- * Allows users to log in with their email and password.
- */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // install with the npm package; npm install jwt-decode
 
-/**
- * 
- * @returns 
- */
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,26 +21,30 @@ export default function Login() {
 
       const data = await res.json();
 
-      if (res.ok) {
-         const token = data.token;
-         localStorage.setItem("token", token);
+      if (res.ok && data.token) {
+        const token = data.token;
 
-         // Decode the JWT payload to extract the user’s email
-         const payload = JSON.parse(atob(token.split(".")[1]));
-         localStorage.setItem("userEmail", payload.email);
+        // Decode JWT and check expiration
+        const payload = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        if (payload.exp < currentTime) {
+          setMessage("Session expired, please log in again.");
+          return;
+        }
 
-         navigate("/"); // redirect to events page
-      } 
-      else {
-         setMessage(data.error || "Invalid credentials");
+        // Store token and email in localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("userEmail", payload.email);
+
+        navigate("/"); // redirect to events page
+      } else {
+        setMessage(data.error || "Invalid credentials");
       }
-
-    } 
-      catch (err) {
-         console.error(err);
-         setMessage("Server error. Try again later.");
-      }
-   };
+    } catch (err) {
+      console.error(err);
+      setMessage("Server error. Try again later.");
+    }
+  };
 
   return (
     <div style={{ textAlign: "center", marginTop: "80px" }}>
@@ -73,6 +70,17 @@ export default function Login() {
       <p>
         Don’t have an account? <a href="/register">Register</a>
       </p>
+      {/* Add Home Button */}
+      <p>
+         <a href="/" style={{ textDecoration: "none" }}>
+            <button type="button">Home</button>
+         </a>
+      </p>
+      <img
+          src="/tigerpaw.png"
+          alt="Clemson Tiger Paw logo"
+          className="ClemsonLogo"
+        />
     </div>
   );
 }
