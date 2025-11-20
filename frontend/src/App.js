@@ -7,7 +7,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { Link, useNavigate } from "react-router-dom"; // for login route
-import jwtDecode from "jwt-decode";
 
 ///////////////
 // API CALLS //
@@ -626,23 +625,7 @@ function BookingAssistantChat(props){
   )
 }
 
-
-/* Main application component. Displays Clemson campus events and includes accessibility features to assist visually impaired users. Users can use tab and enter keys to navigate the site and purchase tickets.
- * 
- * returns --> JSX element representing the main application.
- */
-function App() {
-  const [events, setEvents] = useState([]);
-  const [showAssistant, setShowAssistant] = useState(false);
-  const navigate = useNavigate();  // for navigation
-  // fetches all event rows on startup
-  useEffect(() => {
-    getEvents(setEvents);
-  }, []);
-
-
-
-  /*
+ /*
    * page and image format and accesibility
    * 
    * has the webpage with a logo, page title, and  event list
@@ -659,6 +642,37 @@ function App() {
    * returns:
    *  - elements representing the event list user interface
    */
+function App() {
+  const [events, setEvents] = useState([]);
+  const [showAssistant, setShowAssistant] = useState(false);
+  const navigate = useNavigate();  // for navigation
+  // helper funtion to see if token is expired
+  function isTokenExpired(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const now = Date.now() / 1000; // current time in seconds
+      return payload.exp < now;
+    } catch (err) {
+      console.error("Invalid token:", err);
+      return true;
+    }
+  }
+
+  // on app load, check token expiration
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && isTokenExpired(token)) {
+      // Token expired → clear and redirect
+      localStorage.removeItem("token");
+      localStorage.removeItem("userEmail");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    getEvents(setEvents);
+  }, []);
+
   return (
     <main className="App" role="main" aria-labelledby="pageTitle">
       {/* header section with Clemson logo and page title */}
