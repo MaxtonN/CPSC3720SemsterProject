@@ -625,23 +625,7 @@ function BookingAssistantChat(props){
   )
 }
 
-
-/* Main application component. Displays Clemson campus events and includes accessibility features to assist visually impaired users. Users can use tab and enter keys to navigate the site and purchase tickets.
- * 
- * returns --> JSX element representing the main application.
- */
-function App() {
-  const [events, setEvents] = useState([]);
-  const [showAssistant, setShowAssistant] = useState(false);
-  const navigate = useNavigate();  // for navigation
-  // fetches all event rows on startup
-  useEffect(() => {
-    getEvents(setEvents);
-  }, []);
-
-
-
-  /*
+ /*
    * page and image format and accesibility
    * 
    * has the webpage with a logo, page title, and  event list
@@ -658,6 +642,37 @@ function App() {
    * returns:
    *  - elements representing the event list user interface
    */
+function App() {
+  const [events, setEvents] = useState([]);
+  const [showAssistant, setShowAssistant] = useState(false);
+  const navigate = useNavigate();  // for navigation
+  // helper funtion to see if token is expired
+  function isTokenExpired(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const now = Date.now() / 1000; // current time in seconds
+      return payload.exp < now;
+    } catch (err) {
+      console.error("Invalid token:", err);
+      return true;
+    }
+  }
+
+  // on app load, check token expiration
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && isTokenExpired(token)) {
+      // Token expired → clear and redirect
+      localStorage.removeItem("token");
+      localStorage.removeItem("userEmail");
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    getEvents(setEvents);
+  }, []);
+
   return (
     <main className="App" role="main" aria-labelledby="pageTitle">
       {/* header section with Clemson logo and page title */}
@@ -668,24 +683,51 @@ function App() {
           className="ClemsonLogo"
         />
         <h1 id="pageTitle">Clemson Campus Events</h1>
-      
-        <div style={{ position: "absolute", top: 20, left: 30 }}>
-          {localStorage.getItem("token") ? (
-            <button
-              className="logoutButton"
-              onClick={() => {
-                localStorage.removeItem("token");
-                navigate("/login");
-             }}
-            >
-              Logout
-            </button>
-          ) : (
-            <Link to="/login">
-              <button className="loginButton">Login</button>
-            </Link>
-        )}
-        </div>
+        
+<div
+  style={{
+    position: "absolute",
+    top: 20,
+    left: 30,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  }}
+>
+  {(() => {
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (token && userEmail) {
+      return (
+        <>
+          <p style={{ margin: 0, color: "white", fontSize: "0.9rem" }}>
+            Logged in as <strong>{userEmail}</strong>
+          </p>
+          <button
+            className="logoutButton"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("userEmail");
+              navigate("/login");
+            }}
+          >
+            Logout
+          </button>
+        </>
+      );
+    } else {
+      return (
+        <Link to="/login">
+          <button className="loginButton">Login</button>
+        </Link>
+      );
+    }
+  })()}
+</div>
+
+
+
       </header>
 
       {/* event listings section */}

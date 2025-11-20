@@ -1,3 +1,4 @@
+require("dotenv").config(); // for JWT_SECRET key
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
