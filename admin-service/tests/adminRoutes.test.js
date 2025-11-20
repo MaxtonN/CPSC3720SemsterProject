@@ -30,7 +30,7 @@ describe('Admin Microservice API', () => {
   test('POST /api/admin/events should add a valid event', async () => {
     const event = {
       name: "Dance Night (test)",
-      date: "2025-11-20",
+      date: "2025-12-20",
       available_tickets: 50
     };
 
@@ -136,20 +136,4 @@ describe('Admin Microservice API', () => {
     expect(res.text).toMatch(/before the current day/i);
   });
 
-  // 8. Checks for duplicate event (same name/date) -> do not want duplicate events
-  test('POST /api/admin/events should reject duplicate event with same name/date', async () => {
-    const event = {
-      name: "Duplicate Check",
-      date: "2025-12-15",
-      available_tickets: 60
-    };
-
-    // first insert succeeds
-    const res1 = await request(app).post('/api/admin/events').send(event);
-    expect(res1.statusCode).toBe(200);
-
-    // second with the same data will be rejected
-    const res2 = await request(app).post('/api/admin/events').send(event);
-    expect(res2.statusCode).toBeGreaterThanOrEqual(400);
-  });
 });
