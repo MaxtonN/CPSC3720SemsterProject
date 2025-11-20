@@ -29,7 +29,7 @@ describe('Admin Microservice API', () => {
   // Date must be valid and in the future or present day
   test('POST /api/admin/events should add a valid event', async () => {
     const event = {
-      name: "Dance Night (test)",
+      name: "Dance Night",
       date: "2025-12-20",
       available_tickets: 50
     };
