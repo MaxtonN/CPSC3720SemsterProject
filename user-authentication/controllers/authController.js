@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 /*
  * registerUser takes in an api POST request and creates a new user
  * in the shared SQLite database based on given data, wrapper for AddUser
+ * 
+ * returns success message if user is created successfully
  */
 const registerUser = async (req, res) => {
     try {

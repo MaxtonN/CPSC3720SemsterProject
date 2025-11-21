@@ -3,15 +3,15 @@ const router = express.Router();
 const { registerUser, loginUser, resetDB } = require('../controllers/authController');
 const jwt = require('jsonwebtoken');
 
-// JWT verification middleware
+/**
+ * This function verifies the JWT token from the request
+ * and allows access to protected routes only if valid.
+ * req -> request object
+ * res -> response object
+ * next -> next middleware function
+ */
 function verifyToken(req, res, next) {
   const token = req.cookies?.token || req.headers["authorization"]?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Access token required" });
-  }
-
-function verifyToken(req, res, next) {
-  const token = req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Access token required" });
   }
@@ -25,7 +25,6 @@ jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     next();
   });
  }
-}
 
 // endpoints 
 router.post('/register', registerUser); 
