@@ -14,8 +14,6 @@ const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite
  * return: object, information on database operation
  */
 const postEvent = async (event) => {
-    console.log("Attempting to post the event bro:", event); // debugger
-
     try {
         // Open database connection
         const database = new Database(dbFilePath);
@@ -33,7 +31,7 @@ const postEvent = async (event) => {
 
         // Close the DB connection
         database.close();
-        console.log("Event posted successfully!");
+        
     } catch (error) {
         console.log("Error posting event:", error);
         throw error;

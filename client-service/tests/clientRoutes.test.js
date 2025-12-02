@@ -11,6 +11,7 @@ beforeAll(() => {
 
   const db = new Database(__dirname + '/' + dbPath);
   const sql = fs.readFileSync(__dirname + '/' + sqlPath, 'utf-8');
+
   db.exec(sql);
   db.close();
 });
@@ -93,5 +94,78 @@ describe('Client Microservice API', () => {
     const res = await request(app).get('/api/bookings');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  // test to get event by name
+  test('GET /api/events/name/:name should return event by name', async () => {
+    const eventName = "Concert A";
+    const res = await request(app).get(`/api/events/name/${encodeURIComponent(eventName)}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.name).toBe(eventName);
+  });
+
+  // test to get event by name that does not exist
+  test('GET /api/events/name/:name should return 404 for non-existent event', async () => {
+    const eventName = "NonExistentEvent";
+    const res = await request(app).get(`/api/events/name/${encodeURIComponent(eventName)}`);
+    expect(res.statusCode).toBe(404);
+  });
+
+  // test to get events based on query parameters after_date, before_date, availableTickets together
+  test('GET /api/events/query should return events based on query parameters', async () => {
+    const res = await request(app).get('/api/events/query?after_date=2025-12-20&before_date=2025-12-20&available_tickets=true');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach(event => {
+      expect(event.date).toBe('2025-12-20');
+    });
+  });
+
+  // test to get events based on query parameters with no parameters provided
+  test('GET /api/events/query should return 400 if no query parameters provided', async () => {
+    const res = await request(app).get('/api/events/query');
+    expect(res.statusCode).toBe(400);
+    expect(res.body.error).toMatch(/No query parameters provided/i);
+  });
+
+  // test query with only available_tickets parameter
+  test('GET /api/events/query with only available_tickets parameter', async () => {
+    const res = await request(app).get('/api/events/query?available_tickets=1');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach(event => {
+      expect(event.available_tickets).toBeGreaterThan(0);
+    });
+  });
+
+  // test query with only date range parameters
+  test('GET /api/events/query with only date range parameters', async () => {
+    const res = await request(app).get('/api/events/query?after_date=2025-12-19&before_date=2025-12-21');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach(event => {
+      expect(new Date(event.date) >= new Date('2025-12-19')).toBe(true);
+      expect(new Date(event.date) <= new Date('2025-12-21')).toBe(true);
+    });
+  });
+
+  // test query with only after_date parameter
+  test('GET /api/events/query with only after_date parameter', async () => {
+    const res = await request(app).get('/api/events/query?after_date=2025-12-20');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach(event => {
+      expect(new Date(event.date) > new Date('2025-12-20')).toBe(true);
+    });
+  });
+
+  // test query with only before_date parameter
+  test('GET /api/events/query with only before_date parameter', async () => {
+    const res = await request(app).get('/api/events/query?before_date=2025-12-20');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    res.body.forEach(event => {
+      expect(new Date(event.date) < new Date('2025-12-20')).toBe(true);
+    });
   });
 });

@@ -35,6 +35,11 @@ const getEventsQuery = async (req, res) => {
     }
     const query = queryList.join(" AND ");
 
+    if(query === ""){
+        await res.status(400).json({error: "Bad Request: No query parameters provided"});
+        return;
+    }
+
 
     try{
         const events = await RetrieveEventRowsQuery(query);
@@ -44,7 +49,6 @@ const getEventsQuery = async (req, res) => {
         else{
             await res.status(200).json(events);
         }
-        return;
     }
     catch(error){
         await res.status(500).json({error: "Internal Server Error: Unknown"});

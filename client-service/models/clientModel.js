@@ -1,5 +1,5 @@
 const Database = require("better-sqlite3");
-const databaseFilePath = "../backend/shared-db/database.sqlite";
+const databaseFilePath = "backend/shared-db/database.sqlite";
 
 /*
  * getEvent retrieves and returns the row indicated by eventId from the events table of the shared database (database.sqlite)
@@ -144,7 +144,7 @@ const AddBookingRow = async (booking) => {
  * return: json object, reprsentation of every row in the bookings table
  */
 const RetrieveBookingRows = async () => {
-    const database = new Database(dbFilepath);
+    const database = new Database(databaseFilePath);
 
     const statement = database.prepare("SELECT * FROM bookings");
     const rows = statement.all();
