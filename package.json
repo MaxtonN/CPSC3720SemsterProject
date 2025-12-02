@@ -19,8 +19,9 @@
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
-    "openai": "^6.7.0",
-    "sqlite3": "^5.1.7"
+    "openai": "^6.9.1",
+    "sqlite3": "^5.1.7",
+    "words-to-numbers": "^1.5.1"
   },
   "devDependencies": {
     "jest": "^30.2.0",

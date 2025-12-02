@@ -1,8 +1,6 @@
-//import OpenAI from "openai";
-const OpenAI = require("openai");
-// this is really, really bad practice but I'll just put the API_KEY here to save time
-const API_KEY = "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";
+require('dotenv').config(); // Load .env variables
 
+const OpenAI = require("openai");
 /*
  * Communicates with ChatGPT API to parse text and send back the parsed information
  *
@@ -12,7 +10,7 @@ const API_KEY = "sk-proj-GHXGtZI7n8tLupA_x9pqqoVUSheBPvOiS7Q5sGXZ2c7Gy-rLHOJ5vXb
  */
 const Parse = async (message) => {
     const client = new OpenAI({
-        apiKey: API_KEY
+        apiKey: process.env.API_KEY,
     });
 
     // llm will respond according to this prompt
