@@ -53,11 +53,7 @@ const RetrieveEventRowsByName = async (eventName) => {
  *  - list, list of all events in the shared database
  */
 const RetrieveEventRows = async () => {
-    const database = new Database(databaseFilePath, (err) => {
-        if (err) {
-            console.error("Error opening database:", err.message);
-        }
-    });
+    const database = new Database(databaseFilePath);
 
     const statement = database.prepare("SELECT * FROM events");
     const rows = statement.all();
