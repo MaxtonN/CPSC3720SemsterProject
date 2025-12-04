@@ -1,7 +1,7 @@
-const path = require("path");
 const Database = require("better-sqlite3");
 // Use absolute path in order to find the database correctly
-const dbFilePath = path.join(__dirname, "../../backend/shared-db/database.sqlite");
+const path = require("path");
+const databaseFilePath = path.join(__dirname, '..', '..', 'shared-db', 'database.sqlite');
 const bcryptjs = require('bcryptjs');
 
 // Note: For security reasons,
