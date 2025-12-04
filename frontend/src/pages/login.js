@@ -2,18 +2,20 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode"; // install with the npm package; npm install jwt-decode
 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const authServiceURL = "https://tigertix-user-authentication-17z1.onrender.com/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch(`${authServiceURL}api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

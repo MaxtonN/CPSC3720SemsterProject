@@ -12,13 +12,14 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const authServiceURL = "https://tigertix-user-authentication-17z1.onrender.com/";
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch(`${authServiceURL}api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),

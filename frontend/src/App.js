@@ -12,6 +12,13 @@ import { Link, useNavigate } from "react-router-dom"; // for login route
 // API CALLS //
 ///////////////
 
+const clientServiceURL = "https://cpsc3720semsterproject.onrender.com/";
+const llmServiceURL = "https://tigertix-llm-driven-booking-t3ik.onrender.com/";
+const adminServiceURL = "https://tigertix-admin-service-iyyr.onrender.com/";
+const authServiceURL = "https://tigertix-user-authentication-17z1.onrender.com/";
+
+
+
 /* Sends the llm-driven-booking service the user message and returns the llm response
  *
  * userMessage --> string, the message from the user to be sent to the llm-driven-booking service
@@ -24,7 +31,7 @@ import { Link, useNavigate } from "react-router-dom"; // for login route
  */
 const sendLLMMessage = async (userMessage) => {
   try {
-    const response = await fetch("http://localhost:8080/api/llm/parse", {
+    const response = await fetch(`${llmServiceURL}api/llm/parse`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +61,7 @@ const sendLLMMessage = async (userMessage) => {
  */
 const getEventByName = async (eventName) => {
   try{
-    const response = await fetch(`http://localhost:6001/api/events/name/${encodeURIComponent(eventName)}`, {
+    const response = await fetch(`${clientServiceURL}api/events/name/${encodeURIComponent(eventName)}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -80,7 +87,7 @@ const getEventByName = async (eventName) => {
  */
 const getEventsQuery = async (queryParams) => {
   try{
-    const response = await fetch(`http://localhost:6001/api/events/query?${new URLSearchParams(queryParams)}`, {
+    const response = await fetch(`${clientServiceURL}api/events/query?${new URLSearchParams(queryParams)}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json"
@@ -103,7 +110,7 @@ const getEventsQuery = async (queryParams) => {
  */
 const purchaseTickets = async (id, ticket_amount, setEvents) => {
   try{
-    const response = await fetch(`http://localhost:6001/api/events/${id}/purchase`, {
+    const response = await fetch(`${clientServiceURL}api/events/${id}/purchase`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -141,7 +148,7 @@ const purchaseTickets = async (id, ticket_amount, setEvents) => {
   */
 const buyTicket = async (id, setEvents) => {
   try {
-    const response = await fetch(`http://localhost:6001/api/events/${id}/purchase`, {
+    const response = await fetch(`${clientServiceURL}api/events/${id}/purchase`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ticket_amount: 1 })
@@ -176,7 +183,7 @@ const buyTicket = async (id, setEvents) => {
  */
 const storeBooking = async (event_name, ticket_count) => {
   try{
-    const response = await fetch("http://localhost:6001/api/book", {
+    const response = await fetch(`${clientServiceURL}api/book`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -196,7 +203,7 @@ const storeBooking = async (event_name, ticket_count) => {
  */
 const getEvents = async (setEvents) =>{
   try{
-    fetch("http://localhost:6001/api/events") // Client service endpoint
+    fetch(`${clientServiceURL}api/events`) // Client service endpoint
       .then((res) => res.json())
       .then((data) => setEvents(data))
       .catch((err) => console.error("Error fetching events:", err));
