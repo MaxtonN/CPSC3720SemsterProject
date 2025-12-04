@@ -1,0 +1,62 @@
+name: TigerTix CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  # Run regression tests for frontend and backend
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      # Frontend
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Run tests
+        working-directory: ./frontend
+        run: npm test -- --watchAll=false
+
+
+      # Backend
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+      
+      - name: Run client service tests
+        working-directory: ./backend/client-service
+        run: npm test -- --watchAll=false
+
+      - name: Run auth service tests
+        working-directory: ./backend/auth-service
+        run: npm test -- --watchAll=false
+
+      - name: Run llm service tests
+        working-directory: ./backend/llm-service
+        run: npm test -- --watchAll=false
+
+      - name: Run user-auth service tests
+        working-directory: ./backend/user-auth-service
+        run: npm test -- --watchAll=false
+
+  # Deploy if tests pass
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
