@@ -1,6 +1,7 @@
 const Database = require("better-sqlite3");
-const databaseFilePath = "shared-db/database.sqlite";
-
+//const databaseFilePath = "shared-db/database.sqlite";
+const path = require("path");
+const databaseFilePath = path.join(__dirname, '..', 'shared-db', 'database.sqlite');
 /*
  * getEvent retrieves and returns the row indicated by eventId from the events table of the shared database (database.sqlite)
  *
@@ -52,7 +53,11 @@ const RetrieveEventRowsByName = async (eventName) => {
  *  - list, list of all events in the shared database
  */
 const RetrieveEventRows = async () => {
-    const database = new Database(databaseFilePath);
+    const database = new Database(databaseFilePath, (err) => {
+        if (err) {
+            console.error("Error opening database:", err.message);
+        }
+    });
 
     const statement = database.prepare("SELECT * FROM events");
     const rows = statement.all();
