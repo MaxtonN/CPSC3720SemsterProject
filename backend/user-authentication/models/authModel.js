@@ -16,7 +16,7 @@ const bcryptjs = require('bcryptjs');
  * password -> string, password of the new user (should be hashed)
  */
 const AddUser = async (username, email, password) => {
-    const db = new Database(dbFilePath);
+    const db = new Database(databaseFilePath);
     const transation = db.transaction((username, email, password) => {
         const stmt = db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         stmt.run(username, email, password);
@@ -33,7 +33,7 @@ const AddUser = async (username, email, password) => {
  * password -> string, password of the user to authenticate (should be hashed)
  */
 const AuthenticateUser = async (email) => {
-    const db = new Database(dbFilePath);
+    const db = new Database(databaseFilePath);
     const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
     const user = stmt.get(email);
     db.close();
@@ -43,7 +43,7 @@ const AuthenticateUser = async (email) => {
 /* * DeleteAllRows deletes all rows from the users table in the shared SQLite database
  */
 const DeleteAllRows = async () => {
-    const db = new Database(dbFilePath);
+    const db = new Database(databaseFilePath);
     const stmt = db.prepare("DELETE FROM users");
     stmt.run();
     db.close();

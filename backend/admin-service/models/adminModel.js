@@ -16,7 +16,7 @@ const databaseFilePath = path.join(__dirname, '..', '..', 'shared-db', 'database
 const postEvent = async (event) => {
     try {
         // Open database connection
-        const database = new Database(dbFilePath);
+        const database = new Database(databaseFilePath);
 
         // Wrap insert in transaction
         const purchase = database.transaction((event) => {
