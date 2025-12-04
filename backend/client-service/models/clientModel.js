@@ -1,7 +1,7 @@
 const Database = require("better-sqlite3");
 //const databaseFilePath = "shared-db/database.sqlite";
 const path = require("path");
-const databaseFilePath = path.join(__dirname, '..', 'shared-db', 'database.sqlite');
+const databaseFilePath = path.join(__dirname, '..', '..', 'shared-db', 'database.sqlite');
 /*
  * getEvent retrieves and returns the row indicated by eventId from the events table of the shared database (database.sqlite)
  *
