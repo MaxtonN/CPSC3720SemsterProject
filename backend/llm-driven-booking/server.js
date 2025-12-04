@@ -9,7 +9,7 @@ const llmServiceURL = "https://tigertix-llm-driven-booking-t3ik.onrender.com/";
 app.use(express.json());// parse application/json
 app.use(express.urlencoded({extended:true})); // parse application/x-www-urlencoded
 app.use(cors({
-    origin: llmServiceURL
+    origin: 'https://tigertix-llm-driven-booking-t3ik.onrender.com'
 }));
 app.use('/api', routes);
 app.use((req,res) => {
