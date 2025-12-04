@@ -3,11 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const routes = require('./routes/llmRoutes');
+const llmServiceURL = "https://tigertix-llm-driven-booking-t3ik.onrender.com/";
+
 
 app.use(express.json());// parse application/json
 app.use(express.urlencoded({extended:true})); // parse application/x-www-urlencoded
 app.use(cors({
-    origin: 'http://localhost:3000'
+    origin: llmServiceURL
 }));
 app.use('/api', routes);
 app.use((req,res) => {

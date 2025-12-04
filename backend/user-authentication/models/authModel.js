@@ -8,7 +8,6 @@ const bcryptjs = require('bcryptjs');
 // cannot store plain text passwords,
 // must hash passwords before storing
 
-
 /* * AddUser adds a new user based on given information into the shared
  * SQLite database
  * username -> string, username of the new user

@@ -14,8 +14,6 @@ import { Link, useNavigate } from "react-router-dom"; // for login route
 
 const clientServiceURL = "https://cpsc3720semsterproject.onrender.com/";
 const llmServiceURL = "https://tigertix-llm-driven-booking-t3ik.onrender.com/";
-const adminServiceURL = "https://tigertix-admin-service-iyyr.onrender.com/";
-const authServiceURL = "https://tigertix-user-authentication-17z1.onrender.com/";
 
 
 
