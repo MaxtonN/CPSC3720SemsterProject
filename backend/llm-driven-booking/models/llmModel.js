@@ -1,5 +1,4 @@
-require('dotenv').config(); // Load .env variables
-
+//require('dotenv').config(); // Load .env variables
 const OpenAI = require("openai");
 /*
  * Communicates with ChatGPT API to parse text and send back the parsed information
@@ -10,7 +9,7 @@ const OpenAI = require("openai");
  */
 const Parse = async (message) => {
     const client = new OpenAI({
-        apiKey: process.env.API_KEY,
+        apiKey: process.env.OPENAI_API_KEY,
     });
 
     // llm will respond according to this prompt
