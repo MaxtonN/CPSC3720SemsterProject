@@ -34,9 +34,12 @@ Admin Service - Port 5001: Manages event creation and details
 Client Service - Port 6001: Endpoints for ticket purchasing and event viewing
 LLM-Driven Booking - Port 8080: Parses the language entered in the chatbox for the AI.
 
-**Installation & Setup Instructions**
-After cloning the repository, go to each microservice and run npm install
-Go to admin-service, client-service, user-authentication, llm-driven-booking, front-end and in each run npm install
+**Installation & Setup Instructions for Running Locally**
+After cloning the repository, run the command "npm install" in both the frontend and backend directories. 
+Next, start the backend by running the command "node server.js" in each microservice (admin-service, client-service, llm-driven-booking, and user-authentication)
+You can then start the frontend by going to the frontend directory and running the command "npm start"
+Finally, you must create a .env file in the user-authentications and llm-driven-booking. The former will contain the variable 'JWT_SECRET' with a key of your choosing.
+The later will contain the variable 'OPENAI_API_KEY' which you will have to give a value obtained using the openAI website.
 
 **Environment Variables Setup**
 The user-authentication/.env and llm-driven-booking/.env need to be set up and configured to your preference for security.
@@ -53,6 +56,7 @@ npm test
 If jest is not defined as a script, run npx jest
 If you are flagged for running scripts, use the following: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 After this, cd into each service folder and run npm test
+
 **Manual Regression Tests for Frontend**
 Perform these steps in the browser after automated tests:
 Login/Register - a user via the frontend.
@@ -60,7 +64,6 @@ Book an event - using the chatbot or event buttons.
 Logout - and verify token clearance.
 Test accessibility - navigate using keyboard (Tab/Enter) and voice input.
  LLM chatbot - make sure text commands like “Book 2 tickets for Tiger Fest” are parsed correctly.
-
 
 **Team Members, instructor, TAs, and roles**
 Maxton Negreiros- Product Owner
