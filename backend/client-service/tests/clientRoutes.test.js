@@ -1,5 +1,6 @@
 // Import modules for testing and simulating API requests
 const request = require('supertest');
+const path = require('path');
 const fs = require('fs');
 const Database = require('better-sqlite3');
 const app = require('../server');
