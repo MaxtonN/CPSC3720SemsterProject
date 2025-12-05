@@ -3,6 +3,9 @@ Project Overview
 
 TigerTix is a full-stack microservices application designed to give students a simple and convenient way to find and book events at Clemson. It provides secure user authentication, an accessible user interface for all users, such as keyboard and voice navigation, and an AI-powered integrated LLM chatbot that uses English for ticket booking.
 
+**Demo Video**
+https://drive.google.com/file/d/1t3ssVv1Q5by_rUGGi4Lo5oc0Fmcu_Fi4/view?usp=sharing
+
 **Tech Stack (React, Node.js, Express, SQLite/Supabase, LLM API)**
 **Frontend**
 React.js
