@@ -6,11 +6,11 @@ const app = require('../server');
 
 // Before running any tests, reset the shared database to a clean state
 beforeAll(() => {
-  const dbPath = '../../backend/shared-db/database.sqlite';
-  const sqlPath = '../../backend/shared-db/init.sql';
+  const databaseFilePath = path.join(__dirname, '..', '..', 'shared-db', 'database.sqlite');
+  const sqlFilePath = path.join(__dirname, '..', '..', 'shared-db', 'init.sql');
 
-  const db = new Database(__dirname + '/' + dbPath);
-  const sql = fs.readFileSync(__dirname + '/' + sqlPath, 'utf-8');
+  const db = new Database(databaseFilePath);
+  const sql = fs.readFileSync(sqlFilePath, 'utf-8');
 
   db.exec(sql);
   db.close();
