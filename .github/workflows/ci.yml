@@ -43,11 +43,3 @@ jobs:
       - name: Run admin service tests
         working-directory: ./backend/admin-service
         run: npm test -- adminRoutes.test.js --watchAll=false
-  # Deploy if tests pass
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
