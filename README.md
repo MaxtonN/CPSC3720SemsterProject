@@ -62,7 +62,6 @@ Test accessibility - navigate using keyboard (Tab/Enter) and voice input.
  LLM chatbot - make sure text commands like “Book 2 tickets for Tiger Fest” are parsed correctly.
 
 
-
 **Team Members, instructor, TAs, and roles**
 Maxton Negreiros- Product Owner
 Grayson Simmons- Scrum Master
@@ -95,5 +94,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
