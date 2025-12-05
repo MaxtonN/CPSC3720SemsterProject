@@ -38,12 +38,11 @@ jobs:
       
       - name: Run client service tests
         working-directory: ./backend/client-service
-        run: npm test -- ./tests/clientRoutes.test.js --watchAll=false
+        run: npm test -- clientRoutes.test.js --watchAll=false
 
       - name: Run admin service tests
         working-directory: ./backend/admin-service
-        run: npm test -- ./tests/adminRoutes.test.js --watchAll=false
-
+        run: npm test -- adminRoutes.test.js --watchAll=false
   # Deploy if tests pass
   deploy:
     needs: test
