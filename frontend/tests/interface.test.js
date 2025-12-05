@@ -7,8 +7,6 @@ const App = require('../src/App.js').default;
 
 test.only("runs", () => {});
 
-
-/*
 // test that page header renders correctly
 test('renders the Clemson Campus Events header', () => {
   render(<App />);
@@ -49,4 +47,3 @@ test('clicking Buy Ticket triggers button action', () => {
   // check that the button is still in the document after click
   expect(button).toBeInTheDocument();
 });
-*/
