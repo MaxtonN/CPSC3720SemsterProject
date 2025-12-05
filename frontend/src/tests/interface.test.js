@@ -3,7 +3,7 @@ const render = require('react-dom/test-utils').render;
 const screen = require('@testing-library/react').screen;
 const fireEvent = require('@testing-library/react').fireEvent;
 require('@testing-library/jest-dom');
-const App = require('../src/App.js').default;
+const App = require('../App.js').default;
 
 test.only("runs", () => {});
 
